@@ -6,5 +6,6 @@ namespace SociAll.Aplicacao.Usuarios.Servicos.Interfaces
     public interface IUsuariosAppServico
     {
         UsuarioResponse Inserir(UsuarioInserirRequest request);
+        UsuarioResponse Autenticar(AutenticacaoRequest request);
     }
 }

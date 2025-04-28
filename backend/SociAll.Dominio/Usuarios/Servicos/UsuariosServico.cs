@@ -1,4 +1,5 @@
-﻿using SociAll.Dominio.Hobbies.Entidades;
+﻿using Microsoft.AspNetCore.Identity;
+using SociAll.Dominio.Hobbies.Entidades;
 using SociAll.Dominio.Preferencias.Entidades;
 using SociAll.Dominio.Preferencias.Servicos.Interfaces;
 using SociAll.Dominio.PreferenciasUsuarios.Entidades;
@@ -9,24 +10,26 @@ using SociAll.Dominio.Usuarios.Servicos.Interfaces;
 
 namespace SociAll.Dominio.Usuarios.Servicos
 {
-    public class UsuariosServico : IUsuariosServico
+    public class UsuariosServico(IUsuariosRepositorio usuariosRepositorio, IPreferenciasServico preferenciasServico, IPasswordHasher<Usuario> passwordHasher) : IUsuariosServico
     {
-        private readonly IUsuariosRepositorio usuariosRepositorio;
-        private readonly IPreferenciasServico preferenciasServico;
-
-        public UsuariosServico(IUsuariosRepositorio usuariosRepositorio, IPreferenciasServico preferenciasServico)
-        {
-            this.usuariosRepositorio = usuariosRepositorio;
-            this.preferenciasServico = preferenciasServico;
-        }
+        private readonly IUsuariosRepositorio usuariosRepositorio = usuariosRepositorio;
+        private readonly IPreferenciasServico preferenciasServico = preferenciasServico;
+        private readonly IPasswordHasher<Usuario> passwordHasher = passwordHasher;
 
         public Usuario Inserir(UsuarioInserirComando comando)
         {
-            Usuario usuario = new (comando.Nome, comando.Email, comando.Senha, comando.Endereco);
+            Usuario usuarioExistente = usuariosRepositorio.Query().FirstOrDefault(u => u.Email == comando.Email);
+
+            if (usuarioExistente != null)
+                throw new Exception("Usuário já cadastrado.");
+
+            Usuario usuario = new(comando.Nome, comando.Email, comando.Endereco);
+
+            usuario.SetSenha(passwordHasher.HashPassword(usuario, comando.Senha));
 
             foreach (string descricao in comando.DescricoesHobbies)
             {
-                Hobby hobby = new (descricao, usuario);
+                Hobby hobby = new(descricao, usuario);
 
                 usuario.Hobbies.Add(hobby);
             }
@@ -35,7 +38,7 @@ namespace SociAll.Dominio.Usuarios.Servicos
             {
                 Preferencia preferencia = preferenciasServico.Validar(idPreferencia);
 
-                PreferenciasUsuario preferenciaUsuario = new (usuario, preferencia);
+                PreferenciasUsuario preferenciaUsuario = new(usuario, preferencia);
 
                 usuario.Preferencias.Add(preferenciaUsuario);
             }
@@ -45,9 +48,16 @@ namespace SociAll.Dominio.Usuarios.Servicos
             return usuario;
         }
 
-        public Usuario Validar(string email)
+        public Usuario Autenticar(string email, string senha)
         {
-            throw new NotImplementedException();
+            string loginTratado = email.ToLower().Trim();
+
+            Usuario usuario = usuariosRepositorio.Query().FirstOrDefault(u => u.Email == loginTratado);
+
+            if (usuario == null || passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, senha) == PasswordVerificationResult.Failed)
+                throw new Exception("Usuário ou senha inválido(s).");
+
+            return usuario;
         }
     }
 }

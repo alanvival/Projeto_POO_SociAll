@@ -16,11 +16,10 @@ namespace SociAll.Dominio.Usuarios.Entidades
 
         protected Usuario() { }
 
-        public Usuario(string nome, string email, string senha, string endereco)
+        public Usuario(string nome, string email, string endereco)
         {
             SetNome(nome);
             SetEmail(email);
-            SetSenha(senha);
             SetEndereco(endereco);
         }
 
