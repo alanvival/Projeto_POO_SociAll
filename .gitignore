@@ -134,3 +134,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# VS Code and VS config files
+.vscode
+.vs
+
+# Build results
+bin/
+obj/
