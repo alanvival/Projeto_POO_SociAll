@@ -14,6 +14,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
+import axios from 'axios';
+
 
 // Logo do SociAll como componente SVG
 const SociAllLogo = () => (
@@ -135,17 +137,26 @@ const Login = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     
     // Capturando os dados do formulário
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email');
     const password = formData.get('password');
+
+    let request = {
+      Email: email,
+      Senha: password
+    }
     
-    // Exibindo os dados no console
-    console.log('Email:', email);
-    console.log('Password:', password);
+    try {
+      const response = await axios.post('http://localhost:5173/api/usuarios/autenticar', request);
+      console.log('Login realizado com sucesso:', response.data);
+    } 
+    catch (error) {
+      console.error('Erro ao cadastrar:', error.response?.data || error.message);
+    }
   };
 
   const handleTogglePasswordVisibility = () => {
