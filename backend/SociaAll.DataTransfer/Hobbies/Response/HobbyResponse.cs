@@ -2,5 +2,5 @@
 
 namespace SociAll.DataTransfer.Hobbies.Response
 {
-    public record HobbyResponse(string Descricao, UsuarioResponse Usuario);
+    public record HobbyResponse(int Id, string Descricao);
 }

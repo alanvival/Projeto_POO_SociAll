@@ -27,5 +27,17 @@ namespace SociAll.API.Controllers
 
             return Ok(response);
         }
+
+        ///<summary>
+        /// Autenticar usuário.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("autenticar")]
+        public ActionResult<UsuarioResponse> Autenticar([FromBody] AutenticacaoRequest request)
+        {
+            UsuarioResponse response = usuariosAppServico.Autenticar(request);
+
+            return Ok(response);
+        }
     }
 }
