@@ -10,6 +10,8 @@ import FormButton from '../components/FormButton';
 import AddIcon from '@mui/icons-material/Add';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Logo do SociAll como componente SVG
 const SociAllLogo = () => (
@@ -69,7 +71,7 @@ const PreferenceChip = styled(Chip)(({ theme }) => ({
   },
 }));
 
-const LocationButton = styled(Button)(({ theme, current }) => ({
+const EnderecoButton = styled(Button)(({ theme, current }) => ({
   flex: 1,
   padding: theme.spacing(1.5),
   backgroundColor: current ? '#324f94' : '#f0f8ff',
@@ -81,24 +83,32 @@ const LocationButton = styled(Button)(({ theme, current }) => ({
 }));
 
 const Register = () => {
+  const [Nome, setNome] = useState('');
+  const [Email, setEmail] = useState('');
+  const [Senha, setSenha] = useState('');
   const [newPreference, setNewPreference] = useState('');
-  const [preferences, setPreferences] = useState([
-    'Futebol', 'Jogos', 'Filmes', 'Praias', 'Comida', 'Música'
+  const [preferencias, setPreferencias] = useState([
+    {id: 1, descricao: 'Futebol'}, 
+    {id: 2, descricao: 'Jogos'}, 
+    {id: 3, descricao: 'Filmes'}, 
+    {id: 4, descricao: 'Praias'}, 
+    {id: 5, descricao: 'Comida'},
+    {id: 6, descricao: 'Musica'}
   ]);
-  const [selectedPreferences, setSelectedPreferences] = useState([]);
-  const [location, setLocation] = useState('');
+  const [selectedPreferencias, setSelectedPreferencias] = useState([]);
+  const [Endereco, setendereco] = useState('');
 
   const handleAddPreference = () => {
-    if (newPreference && !preferences.includes(newPreference)) {
-      setPreferences([...preferences, newPreference]);
-      setSelectedPreferences([...selectedPreferences, newPreference]);
+    if (newPreference && !preferencias.includes(newPreference)) {
+      setPreferencias([...preferencias, newPreference]);
+      setSelectedPreferencias([...selectedPreferencias, newPreference]);
       setNewPreference('');
     }
   };
 
   const handlePreferenceToggle = (preference) => {
-    const currentIndex = selectedPreferences.indexOf(preference);
-    const newSelected = [...selectedPreferences];
+    const currentIndex = selectedPreferencias.indexOf((pref) => pref.id === preference.id);
+    const newSelected = [...selectedPreferencias];
 
     if (currentIndex === -1) {
       newSelected.push(preference);
@@ -106,17 +116,41 @@ const Register = () => {
       newSelected.splice(currentIndex, 1);
     }
 
-    setSelectedPreferences(newSelected);
+    setSelectedPreferencias(newSelected);
   };
 
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+  const IdsPreferencias = selectedPreferencias.map((pref) => pref.id);
+
+  const DescricoesHobbies = [
+    "Teste1", "Teste2"
+  ]
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Lógica de cadastro
+    
+    const formData = {
+      Nome,
+      Email,
+      Senha,
+      Endereco,
+      DescricoesHobbies,
+      IdsPreferencias,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:5173/api/usuarios', formData);
+      console.log('Cadastro realizado com sucesso:', response.data);
+      navigate('/');
+    } 
+    catch (error) {
+      console.error('Erro ao cadastrar:', error.response?.data || error.message);
+    }
   };
 
-  const handleUseCurrentLocation = () => {
+  const handleUseCurrentendereco = () => {
     // Simulação de obtenção da localização atual
-    setLocation('Obtenção de localização...');
+    setendereco('Obtenção de localização...');
     // Aqui você implementaria a lógica real para obter a localização do usuário
   };
 
@@ -163,38 +197,44 @@ const Register = () => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <FormInput
-                  id="fullName"
-                  label="Nome e Sobrenome"
-                  name="fullName"
+                  id="Nome"
+                  label="Nome e SobreNome"
+                  name="Nome"
                   autoComplete="name"
-                  placeholder="Seu nome completo"
+                  placeholder="Seu Nome completo"
                   required
                   fullWidth
+                  value={Nome}
+                  onChange={(e) => setNome(e.target.value)}
                 />
               </Grid>
               
               <Grid item xs={12}>
                 <FormInput
-                  id="email"
+                  id="Email"
                   label="E-mail"
-                  name="email"
-                  autoComplete="email"
+                  name="Email"
+                  autoComplete="Email"
                   placeholder="Seu melhor e-mail"
                   required
                   fullWidth
+                  value={Email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </Grid>
               
               <Grid item xs={12}>
                 <FormInput
-                  id="password"
+                  id="Senha"
                   label="Senha"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Crie uma senha segura"
+                  name="Senha"
+                  type="Senha"
+                  autoComplete="new-Senha"
+                  placeholder="Crie uma Senha segura"
                   required
                   fullWidth
+                  value={Senha}
+                  onChange={(e) => setSenha(e.target.value)}
                 />
               </Grid>
             </Grid>
@@ -205,13 +245,13 @@ const Register = () => {
               </Typography>
               
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
-                {preferences.map((pref) => (
+                {preferencias.map((pref) => (
                   <FormControlLabel
-                    key={pref}
+                    key={pref.id}
                     control={
                       <Checkbox
-                        checked={selectedPreferences.includes(pref)}
-                        onChange={() => handlePreferenceToggle(pref)}
+                      checked={selectedPreferencias.some((selected) => selected.id === pref.id)}
+                      onChange={() => handlePreferenceToggle(pref)}
                         sx={{ 
                           color: '#324f94',
                           '&.Mui-checked': {
@@ -222,7 +262,7 @@ const Register = () => {
                     }
                     label={
                       <PreferenceChip
-                        label={pref}
+                        label={pref.descricao}
                         clickable
                       />
                     }
@@ -279,8 +319,8 @@ const Register = () => {
                 placeholder="Digite sua localização"
                 variant="outlined"
                 fullWidth
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={Endereco}
+                onChange={(e) => setendereco(e.target.value)}
                 sx={{
                   mb: 2,
                   '& .MuiOutlinedInput-root': {
@@ -299,24 +339,24 @@ const Register = () => {
               
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <LocationButton
+                  <EnderecoButton
                     variant="outlined"
                     startIcon={<LocationOnIcon />}
                     fullWidth
                   >
                     Digite manualmente
-                  </LocationButton>
+                  </EnderecoButton>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <LocationButton
+                  <EnderecoButton
                     variant="contained"
                     startIcon={<MyLocationIcon />}
-                    onClick={handleUseCurrentLocation}
+                    onClick={handleUseCurrentendereco}
                     current="true"
                     fullWidth
                   >
                     Usar localização atual
-                  </LocationButton>
+                  </EnderecoButton>
                 </Grid>
               </Grid>
             </Box>

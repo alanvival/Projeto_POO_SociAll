@@ -38,5 +38,17 @@ namespace SociAll.Aplicacao.Usuarios.Servicos
                 throw;
             }
         }
+
+        public UsuarioResponse Autenticar(AutenticacaoRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Senha))
+                throw new ArgumentException("Email e senha são obrigatórios.");
+
+            Usuario usuario = usuariosServico.Autenticar(request.Email, request.Senha);
+
+            UsuarioResponse response = mapper.Map<UsuarioResponse>(usuario);
+
+            return response;
+        }
     }
 }

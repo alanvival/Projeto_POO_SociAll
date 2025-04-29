@@ -1,9 +1,11 @@
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using NHibernate;
 using SociAll.Aplicacao.Usuarios.Profiles;
 using SociAll.Aplicacao.Usuarios.Servicos;
+using SociAll.Dominio.Usuarios.Entidades;
 using SociAll.Dominio.Usuarios.Servicos;
 using SociAll.Infra.Usuarios.Mapeamentos;
 using SociAll.Infra.Usuarios.Repositorios;
@@ -26,6 +28,16 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSingleton<ISessionFactory>(factory =>
 {
     string connectionString = builder.Configuration.GetConnectionString("MySql");
@@ -39,6 +51,7 @@ builder.Services.AddSingleton<ISessionFactory>(factory =>
 
 builder.Services.AddScoped<NHibernate.ISession>(factory => factory.GetService<ISessionFactory>()!.OpenSession());
 builder.Services.AddScoped<ITransaction>(factory => factory.GetService<NHibernate.ISession>()!.BeginTransaction());
+builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
 builder.Services.AddAutoMapper(typeof(UsuariosProfile));
 builder.Services.Scan(scan => scan

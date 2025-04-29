@@ -5,8 +5,8 @@ namespace SociAll.Dominio.Usuarios.Servicos.Interfaces
 {
     public interface IUsuariosServico
     {
-        Usuario Validar(string email);
-
         Usuario Inserir(UsuarioInserirComando comando);
+
+        Usuario Autenticar(string email, string senha);
     }
 }
