@@ -15,7 +15,6 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
 
-// Logo do SociAll como componente SVG
 const SociAllLogo = () => (
   <svg viewBox="0 0 200 200" width="100" height="100">
     <defs>
@@ -34,7 +33,7 @@ const SociAllLogo = () => (
   </svg>
 );
 
-// Estilos customizados avançados
+
 const StyledContainer = styled(Container)(({ theme }) => ({
   minHeight: '100vh',
   display: 'flex',
