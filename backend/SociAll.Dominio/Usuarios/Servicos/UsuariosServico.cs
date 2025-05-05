@@ -16,6 +16,13 @@ namespace SociAll.Dominio.Usuarios.Servicos
         private readonly IPreferenciasServico preferenciasServico = preferenciasServico;
         private readonly IPasswordHasher<Usuario> passwordHasher = passwordHasher;
 
+        public Usuario Validar(int id)
+        {
+            Usuario usuario = usuariosRepositorio.Recuperar(id);
+
+            return usuario ?? throw new Exception("Usuário não encontrado.");
+        }
+
         public Usuario Inserir(UsuarioInserirComando comando)
         {
             Usuario usuarioExistente = usuariosRepositorio.Query().FirstOrDefault(u => u.Email == comando.Email);

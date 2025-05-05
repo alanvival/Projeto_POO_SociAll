@@ -3,6 +3,7 @@ using SociAll.Dominio.Genericos;
 using SociAll.Dominio.Genericos.Enumeradores;
 using SociAll.Dominio.Util;
 using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core.Exceptions;
 
 namespace SociAll.Infra.Genericos
 {
@@ -37,14 +38,18 @@ namespace SociAll.Infra.Genericos
         {
             try
             {
-                query = query.OrderBy(cpOrd + " " + tpOrd.ToString());
+                if (!string.IsNullOrWhiteSpace(cpOrd))
+                {
+                    string ordenacao = $"{cpOrd} {tpOrd}";
+
+                    query = query.OrderBy(ordenacao);
+                }
 
                 return Paginar(query, qt, pg);
             }
-            catch
+            catch (ParseException ex)
             {
-
-                throw new ArgumentException("Campo de ordenação não informado");
+                throw new ArgumentException($"Campo de ordenação inválido: '{cpOrd}'.", nameof(cpOrd), ex);
             }
         }
 

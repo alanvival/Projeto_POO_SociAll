@@ -7,14 +7,9 @@ namespace SociAll.API.Controllers
 {
     [ApiController]
     [Route("api/usuarios")]
-    public class UsuariosController : ControllerBase
+    public class UsuariosController(IUsuariosAppServico usuariosAppServico) : ControllerBase
     {
-        private readonly IUsuariosAppServico usuariosAppServico;
-
-        public UsuariosController(IUsuariosAppServico usuariosAppServico)
-        {
-            this.usuariosAppServico = usuariosAppServico;
-        }
+        private readonly IUsuariosAppServico usuariosAppServico = usuariosAppServico;
 
         ///<summary>
         /// Cadastrar um usuário.
