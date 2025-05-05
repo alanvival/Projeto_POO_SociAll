@@ -1,5 +1,5 @@
-﻿using SociAll.Dominio.Hobbies.Entidades;
-using SociAll.Dominio.Preferencias.Entidades;
+﻿using SociAll.Dominio.Eventos.Entidades;
+using SociAll.Dominio.Hobbies.Entidades;
 using SociAll.Dominio.PreferenciasUsuarios.Entidades;
 
 namespace SociAll.Dominio.Usuarios.Entidades

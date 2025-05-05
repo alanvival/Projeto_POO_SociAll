@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using SociAll.DataTransfer.Hobbies.Response;
 using SociAll.DataTransfer.Preferencias.Response;
-using SociAll.DataTransfer.PreferenciasUsuarios.Response;
 using SociAll.DataTransfer.Usuarios.Request;
 using SociAll.DataTransfer.Usuarios.Response;
 using SociAll.Dominio.Hobbies.Entidades;
@@ -19,7 +18,7 @@ namespace SociAll.Aplicacao.Usuarios.Profiles
             CreateMap<Usuario, UsuarioResponse>();
             CreateMap<UsuarioInserirRequest, UsuarioInserirComando>();
             CreateMap<Hobby, HobbyResponse>();
-            CreateMap<PreferenciasUsuario, PreferenciasUsuarioResponse>();
+            CreateMap<PreferenciasUsuario, PreferenciaUsuarioResponse>();
             CreateMap<Preferencia, PreferenciaResponse>();
         }
     }
