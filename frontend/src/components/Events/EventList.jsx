@@ -33,7 +33,53 @@ const SociAllLogo = () => (
   </svg>
 );
 
-const eventsData = [];
+const eventsData = [
+    {
+      id: 1,
+      title: 'Workshop de React',
+      date: '2025-05-10',
+      time: '14:00',
+      location: 'São Paulo, SP',
+      description: 'Aprenda os fundamentos do React em um workshop prático.',
+      confirmedPeople: 25,
+      organizer: {
+        name: 'João Silva',
+        avatar: '',
+        id: 101,
+      },
+      image: '',
+    },
+    {
+      id: 2,
+      title: 'Hackathon de Inovação',
+      date: '2025-05-15',
+      time: '10:00',
+      location: 'Rio de Janeiro, RJ',
+      description: 'Participe de um hackathon para criar soluções inovadoras.',
+      confirmedPeople: 50,
+      organizer: {
+        name: 'Maria Oliveira',
+        avatar: '',
+        id: 102,
+      },
+      image: '',
+    },
+    {
+      id: 3,
+      title: 'Conferência de Tecnologia',
+      date: '2025-05-20',
+      time: '09:00',
+      location: 'Belo Horizonte, MG',
+      description: 'Explore as tendências mais recentes em tecnologia.',
+      confirmedPeople: 100,
+      organizer: {
+        name: 'Carlos Souza',
+        avatar: '',
+        id: 103,
+      },
+      image: '',
+    },
+  ];
 
 const EventList = () => {
   const [searchTerm, setSearchTerm] = useState('');
