@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Container, 
@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
-import EventCard from './EventCard';
-
+import EventCard from '../components/Events/EventCard';
+import axios from 'axios';
 
 const SociAllLogo = () => (
   <svg viewBox="0 0 200 200" width="100" height="100">
@@ -33,56 +33,40 @@ const SociAllLogo = () => (
   </svg>
 );
 
-const eventsData = [
-    {
-      id: 1,
-      title: 'Workshop de React',
-      date: '2025-05-10',
-      time: '14:00',
-      location: 'São Paulo, SP',
-      description: 'Aprenda os fundamentos do React em um workshop prático.',
-      confirmedPeople: 25,
-      organizer: {
-        name: 'João Silva',
-        avatar: '',
-        id: 101,
-      },
-      image: '',
-    },
-    {
-      id: 2,
-      title: 'Hackathon de Inovação',
-      date: '2025-05-15',
-      time: '10:00',
-      location: 'Rio de Janeiro, RJ',
-      description: 'Participe de um hackathon para criar soluções inovadoras.',
-      confirmedPeople: 50,
-      organizer: {
-        name: 'Maria Oliveira',
-        avatar: '',
-        id: 102,
-      },
-      image: '',
-    },
-    {
-      id: 3,
-      title: 'Conferência de Tecnologia',
-      date: '2025-05-20',
-      time: '09:00',
-      location: 'Belo Horizonte, MG',
-      description: 'Explore as tendências mais recentes em tecnologia.',
-      confirmedPeople: 100,
-      organizer: {
-        name: 'Carlos Souza',
-        avatar: '',
-        id: 103,
-      },
-      image: '',
-    },
-  ];
-
 const EventList = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [eventsData, setEventsData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      setError(null);
+
+      const request = {
+        NomeEvento: "",
+        CategoriaEventoIds: [],
+        NomeCriador: "",
+        Data: "",
+        Pg: 1,
+        Qt: 10,
+      };
+
+      try {
+        const response = await axios.get('http://localhost:5173/api/eventos', request);
+        setEventsData(response.data.registros);
+        console.log('Eventos recebidos:', eventsData);
+      } catch (err) {
+        console.error('Erro ao buscar eventos:', err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [searchTerm]); // Atualiza sempre que searchTerm mudar
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -98,11 +82,10 @@ const EventList = () => {
 
   return (
     <Box sx={{ flexGrow: 1, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-      {/* Header */}
       <AppBar position="static" sx={{ bgcolor: '#253b6e' }}>
         <Toolbar>
           <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-            <SociAllLogo /> {/* Substituindo o Logo */}
+            <SociAllLogo />
           </Box>
           
           <TextField
@@ -113,9 +96,6 @@ const EventList = () => {
               flexGrow: 1,
               bgcolor: 'white',
               borderRadius: 1,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 1,
-              }
             }}
             InputProps={{
               startAdornment: (
@@ -155,11 +135,14 @@ const EventList = () => {
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h5" sx={{ mb: 3, fontWeight: 'medium' }}>
-          Listagem eventos
+          Lista de Eventos
         </Typography>
 
+        {loading && <Typography>Carregando eventos...</Typography>}
+        {error && <Typography color="error">Falha ao carregar eventos.</Typography>}
+
         <Grid container spacing={3}>
-          {eventsData.map((event) => (
+          {!loading && eventsData.map((event) => (
             <Grid item xs={12} sm={6} md={4} key={event.id}>
               <EventCard 
                 event={event} 
@@ -171,7 +154,7 @@ const EventList = () => {
         </Grid>
       </Container>
       
-      {/* Footer com logo */}
+      {/* Footer */}
       <Box
         sx={{
           p: 2,
@@ -181,7 +164,7 @@ const EventList = () => {
           mt: 'auto'
         }}
       >
-        <SociAllLogo /> {/* Substituindo o Logo */}
+        <SociAllLogo />
       </Box>
     </Box>
   );

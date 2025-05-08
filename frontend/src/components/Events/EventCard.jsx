@@ -1,5 +1,3 @@
-// src/components/Events/EventCard.jsx
-import React from 'react';
 import {
     Box,
     Card,
@@ -14,6 +12,21 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 
 const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
+    function formatDateTime(isoString) {
+        const date = new Date(isoString);
+      
+        const datePart = new Intl.DateTimeFormat('pt-BR', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        }).format(date);
+      
+        const timePart = new Intl.DateTimeFormat('pt-BR', {
+          hour: '2-digit', minute: '2-digit',
+          hour12: false
+        }).format(date);
+      
+        return `${datePart} às ${timePart}`;
+    }
+
     return (
         <Card sx={{
             height: '100%',
@@ -25,12 +38,12 @@ const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
             <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
-                        alt={event.organizer?.name || 'Organizador Desconhecido'}
-                        src={event.organizer?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.organizer?.name || 'Desconhecido')}&background=random`}
+                        alt={event.usuario?.nome || 'Organizador Desconhecido'}
+                        src={event.usuario?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.usuario?.nome || 'Desconhecido')}&background=random`}
                         sx={{ width: 30, height: 30 }}
                     />
                     <Typography variant="subtitle2" sx={{ ml: 1 }}>
-                        {event.organizer?.name || 'Organizador Desconhecido'}
+                        {event.usuario?.nome || 'Organizador Desconhecido'}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
                         Organizador
@@ -44,53 +57,50 @@ const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
                         textTransform: 'none',
                         fontWeight: 'medium'
                     }}
-                    onClick={() => onAddEvent(event.organizer.id)}
+                    onClick={() => onAddEvent(event.usuario.id)}
                 >
                     Adicionar
                 </Button>
             </Box>
 
             <Typography variant="h6" sx={{ px: 2, fontWeight: 'medium' }}>
-                {event.title}
+                {event.nome}
             </Typography>
 
             <CardMedia
                 component="img"
                 height="140"
-                image={event.image || "https://source.unsplash.com/random/300x200/?park"}
-                alt={event.title}
+                image={event.foto || "https://source.unsplash.com/random/300x200/?park"}
+                alt='Imagem do Evento'
                 sx={{ mt: 1 }}
             />
 
             <CardContent sx={{ flexGrow: 1, pt: 1 }}>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {event.description}
+                    {event.descricao}
                 </Typography>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <LocationOnIcon fontSize="small" color="action" />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                        {event.location}
+                        {event.endereco}
                     </Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <CalendarTodayIcon fontSize="small" color="action" />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                        {event.date} - {event.time}
+                        {formatDateTime(event.data)}
                     </Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <PeopleIcon fontSize="small" color="action" />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                        {event.confirmedPeople} Pessoas confirmadas
+                        {event.quantidadeInscritos} Pessoas confirmadas
                     </Typography>
                 </Box>
 
-                <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                    Incrível evento o você, Com muitas confirmações
-                </Typography>
 
                 <Button
                     fullWidth
