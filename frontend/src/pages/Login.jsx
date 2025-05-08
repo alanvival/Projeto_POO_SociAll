@@ -15,8 +15,8 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
 import axios from 'axios';
-
-
+import { useNavigate } from 'react-router-dom';
+ 
 const SociAllLogo = () => (
   <svg viewBox="0 0 200 200" width="100" height="100">
     <defs>
@@ -135,6 +135,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -152,6 +153,8 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5173/api/usuarios/autenticar', request);
       console.log('Login realizado com sucesso:', response.data);
+
+      navigate('/events');
     } 
     catch (error) {
       console.error('Erro ao cadastrar:', error.response?.data || error.message);
