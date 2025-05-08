@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Adicionado Navigate
 import Login from '../pages/Login';
 import Register from '../pages/Register';
-import EventList from '../components/Events/EventList';
+import EventList from '../pages/EventList';
 
 export default function AppRoutes() {
   return (
