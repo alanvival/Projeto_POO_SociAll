@@ -70,7 +70,7 @@ const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
             <CardMedia
                 component="img"
                 height="140"
-                image={event.foto || "https://source.unsplash.com/random/300x200/?park"}
+                image={event.foto || "https://picsum.photos/id/237/200/300"}
                 alt='Imagem do Evento'
                 sx={{ mt: 1 }}
             />
