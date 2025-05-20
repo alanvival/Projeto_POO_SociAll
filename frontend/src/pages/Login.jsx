@@ -1,10 +1,9 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { 
-  Box, Typography, Container, Link, Paper, Grid, Fade, 
-  IconButton, InputAdornment, Divider, useTheme, useMediaQuery 
+  Box, Typography, Link, Paper, Grid, Fade, 
+  IconButton, InputAdornment, useTheme, useMediaQuery, Divider 
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import FormInput from '../components/FormInput';
 import FormButton from '../components/FormButton';
 import EmailIcon from '@mui/icons-material/Email';
@@ -16,7 +15,8 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
- 
+
+// Logo original com estilo atualizado
 const SociAllLogo = () => (
   <svg viewBox="0 0 200 200" width="100" height="100">
     <defs>
@@ -35,22 +35,21 @@ const SociAllLogo = () => (
   </svg>
 );
 
-
-const StyledContainer = styled(Container)(({ theme }) => ({
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundImage: `linear-gradient(135deg, #d2ecf9 0%, #a5d9f3 100%)`,
-  padding: theme.spacing(3),
-  position: 'relative',
+// Componente para o background decorativo
+const BackgroundDecoration = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   overflow: 'hidden',
+  zIndex: 0,
   '&::before': {
     content: '""',
     position: 'absolute',
-    top: '-10%',
+    top: '-5%',
     left: '-5%',
-    width: '120%',
+    width: '110%',
     height: '30%',
     background: '#253b6e',
     transform: 'rotate(-3deg)',
@@ -59,9 +58,9 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   '&::after': {
     content: '""',
     position: 'absolute',
-    bottom: '-10%',
+    bottom: '-5%',
     right: '-5%',
-    width: '120%',
+    width: '110%',
     height: '30%',
     background: '#253b6e',
     transform: 'rotate(-3deg)',
@@ -69,6 +68,22 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   }
 }));
 
+// Container principal com reset de margens
+const LoginRoot = styled(Box)(({ theme }) => ({
+  margin: 0,
+  padding: 0,
+  minHeight: '100vh',
+  width: '100vw',
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'linear-gradient(135deg, #d2ecf9 0%, #a5d9f3 100%)',
+}));
+
+// Paper estilizado
 const StyledPaper = styled(Paper)(({ theme }) => ({
   position: 'relative',
   zIndex: 1,
@@ -83,6 +98,8 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   alignItems: 'center',
   overflow: 'hidden',
   transition: 'all 0.3s ease',
+  width: '100%',
+  maxWidth: 420,
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -94,24 +111,27 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   },
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(4, 3),
+    margin: theme.spacing(2),
   }
 }));
 
+// Botão social modernizado
 const SocialButton = styled(IconButton)(({ theme }) => ({
   width: 50,
   height: 50,
   borderRadius: '50%',
-  backgroundColor: '#f0f8ff',
+  backgroundColor: alpha('#a5d9f3', 0.1),
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
   margin: theme.spacing(0, 1),
   transition: 'all 0.3s ease',
   '&:hover': {
     transform: 'translateY(-3px)',
     boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#ffffff',
+    backgroundColor: alpha('#a5d9f3', 0.2),
   }
 }));
 
+// Decoração de formas flutuantes
 const FloatingShape = styled(Box)(({ theme, position }) => ({
   position: 'absolute',
   width: position === 'top' ? 300 : 200,
@@ -153,7 +173,6 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5173/api/usuarios/autenticar', request);
       console.log('Login realizado com sucesso:', response.data);
-
       navigate('/events');
     } 
     catch (error) {
@@ -166,18 +185,21 @@ const Login = () => {
   };
 
   return (
-    <StyledContainer maxWidth="xl">
+    <LoginRoot>
+      <BackgroundDecoration />
       <FloatingShape position="top" />
       <FloatingShape />
       
       <Fade in={true} timeout={1000}>
         <Box sx={{ 
-          width: '100%', 
-          maxWidth: 480,
           position: 'relative',
           zIndex: 2,
+          padding: 2,
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
         }}>
-          <StyledPaper elevation={24}>
+          <StyledPaper elevation={6}>
             <Box sx={{ 
               mb: 4, 
               display: 'flex', 
@@ -428,7 +450,7 @@ const Login = () => {
           </StyledPaper>
         </Box>
       </Fade>
-    </StyledContainer>
+    </LoginRoot>
   );
 };
 
