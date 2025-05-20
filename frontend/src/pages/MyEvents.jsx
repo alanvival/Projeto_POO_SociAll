@@ -253,41 +253,26 @@ const MyEvents = () => {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const infoUsuario = JSON.parse(localStorage.getItem('infoUsuario'));
 
   useEffect(() => {
     const fetchMyEvents = async () => {
       setLoading(true);
       setError(null);
 
+      const request = {
+        NomeEvento: "",
+        CategoriaEventoIds: [],
+        NomeCriador: "",
+        IdUsuario: infoUsuario.id
+      };
+
       try {
-        // Aqui você faria uma chamada para buscar os eventos criados pelo usuário
-        // Exemplo: const response = await axios.get('http://localhost:5173/api/meus-eventos');
-        // Usando dados fictícios por enquanto
-        const mockData = [
-          {
-            id: 1,
-            nome: "Workshop de Programação",
-            descricao: "Workshop para iniciantes em programação",
-            data: "2025-06-15",
-            criador: "João Silva",
-            categoria: "Tecnologia",
-            imagem: "https://via.placeholder.com/150"
-          },
-          {
-            id: 2,
-            nome: "Encontro de Desenvolvedores",
-            descricao: "Encontro para discutir novas tecnologias",
-            data: "2025-07-10",
-            criador: "João Silva",
-            categoria: "Tecnologia",
-            imagem: "https://via.placeholder.com/150"
-          }
-        ];
-        
-        setMyEventsData(mockData);
+        const response = await axios.get('http://localhost:5173/api/eventos', { params: request });
+        setMyEventsData(response.data.registros);
+        console.log('Eventos recebidos:', myEventsData);
       } catch (err) {
-        console.error('Erro ao buscar meus eventos:', err);
+        console.error('Erro ao buscar eventos:', err);
         setError(err);
       } finally {
         setLoading(false);
@@ -322,7 +307,7 @@ const MyEvents = () => {
   };
 
   // Adicione esta nova função para salvar o evento
-  const handleSaveEvent = (eventData) => {
+  const handleSaveEvent = async (eventData) => {
     console.log('Salvando novo evento:', eventData);
 
     // Criar uma imagem temporária para o evento (pode ser substituída pela lógica real)
@@ -330,24 +315,30 @@ const MyEvents = () => {
       ? URL.createObjectURL(eventData.imagem) 
       : "https://via.placeholder.com/150";
 
-    // Criar novo evento com dados do formulário
-    const newEvent = {
-      id: Date.now(), // ID temporário
-      nome: eventData.nome,
-      descricao: eventData.descricao,
-      data: eventData.data.toISOString().split('T')[0],
-      criador: "João Silva", // Substituir pelo usuário atual
-      categoria: "Evento", // Ajustar conforme necessário
-      imagem: imageUrl,
-      local: eventData.local,
-      privacidade: eventData.privacidade
-    };
+    debugger
 
+    // Criar objeto com os dados do evento
+    const newEvent ={
+      UsuarioId: eventData.UsuarioId,
+      Nome: eventData.Nome,
+      Data: eventData.Data,
+      Descricao: eventData.Descricao,
+      Foto: imageUrl,
+      Endereco: eventData.Endereco,
+      QuantidadeMaximaInscritos: eventData.QuantidadeMaximaInscritos,
+      PreferenciasId: eventData.PreferenciasId
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5173/api/eventos', newEvent);
+      console.log('Evento adicionado com sucesso:', response.data);
+    } 
+    catch (error) {
+      console.error('Erro ao cadastrar evento:', error.response?.data || error.message);
+    }
+    
     // Adicionar o novo evento à lista
     setMyEventsData([newEvent, ...myEventsData]);
-
-    // Aqui você pode implementar a chamada à API para salvar no backend
-    // Exemplo: await axios.post('http://localhost:5173/api/eventos', newEvent);
   };
 
   return (
@@ -607,7 +598,6 @@ const MyEvents = () => {
                         variant="outlined"
                         onClick={() => handleModifyEvent(event.id)}
                         startIcon={<EditIcon />}
-                        variant="modify"
                         sx={{ flex: 1 }}
                       >
                         Modificar

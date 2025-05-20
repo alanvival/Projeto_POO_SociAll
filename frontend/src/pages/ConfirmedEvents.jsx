@@ -266,7 +266,7 @@ const ConfirmedEvents = () => {
   }, []);
 
   const handleBackToEvents = () => {
-    navigate('/');
+    navigate('/events');
   };
 
   const handleNavigateToMyEvents = () => {

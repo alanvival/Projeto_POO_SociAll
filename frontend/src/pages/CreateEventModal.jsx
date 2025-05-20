@@ -107,18 +107,15 @@ const FormLabel = styled(Typography)(({ theme }) => ({
 const CreateEventModal = ({ open, onClose, onSave }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const infoUsuario = JSON.parse(localStorage.getItem('infoUsuario'));
   
   // Estados para os dados do evento
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [dateTime, setDateTime] = useState(new Date());
-  const [privacy, setPrivacy] = useState('public');
   const [eventImage, setEventImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
-  const [taggedFriends, setTaggedFriends] = useState([]);
-  const [excludedFriends, setExcludedFriends] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState('');
 
   // Lista fictícia de amigos (pode ser substituída por dados reais)
   const friendsList = [
@@ -126,13 +123,6 @@ const CreateEventModal = ({ open, onClose, onSave }) => {
     { id: 2, name: 'Carlos Oliveira', avatar: 'https://via.placeholder.com/40' },
     { id: 3, name: 'Mariana Costa', avatar: 'https://via.placeholder.com/40' },
     { id: 4, name: 'Lucas Santos', avatar: 'https://via.placeholder.com/40' },
-  ];
-
-  // Lista fictícia de grupos (pode ser substituída por dados reais)
-  const groupsList = [
-    { id: 1, name: 'Amigos da faculdade' },
-    { id: 2, name: 'Colegas de trabalho' },
-    { id: 3, name: 'Família' },
   ];
 
   // Handler para upload de imagem
@@ -153,8 +143,6 @@ const CreateEventModal = ({ open, onClose, onSave }) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Aqui poderia ser integrado com uma API de geocodificação reversa
-          // para converter coordenadas em um endereço legível
           setLocation(`Lat: ${position.coords.latitude.toFixed(4)}, Long: ${position.coords.longitude.toFixed(4)}`);
         },
         (error) => {
@@ -167,49 +155,24 @@ const CreateEventModal = ({ open, onClose, onSave }) => {
     }
   }, []);
 
-  // Handler para adicionar amigo
-  const handleAddFriend = (friend) => {
-    if (!taggedFriends.some(f => f.id === friend.id)) {
-      setTaggedFriends([...taggedFriends, friend]);
-    }
-  };
-
-  // Handler para remover amigo da lista de marcados
-  const handleRemoveFriend = (friendId) => {
-    setTaggedFriends(taggedFriends.filter(friend => friend.id !== friendId));
-  };
-
-  // Handler para adicionar/remover amigo excluído (para privacidade "Amigos, exceto...")
-  const handleToggleExcludedFriend = (friend) => {
-    if (excludedFriends.some(f => f.id === friend.id)) {
-      setExcludedFriends(excludedFriends.filter(f => f.id !== friend.id));
-    } else {
-      setExcludedFriends([...excludedFriends, friend]);
-    }
-  };
-
   // Handler para salvar o evento
   const handleSaveEvent = () => {
     // Criar objeto com os dados do evento
-    const eventData = {
-      nome: eventName,
-      descricao: description,
-      local: location,
-      data: dateTime,
-      privacidade: privacy,
-      imagem: eventImage,
-      amigos_marcados: taggedFriends,
-      amigos_excluidos: excludedFriends,
-      grupo: selectedGroup,
-    };
+    const formData ={
+      UsuarioId: infoUsuario.id,
+      Nome: eventName,
+      Data: dateTime,
+      Descricao: description,
+      Foto: eventImage,
+      Endereco: location,
+      QuantidadeMaximaInscritos: 50,
+      PreferenciasId: [1, 2]
+    }
 
-    // Chamar função de callback para salvar o evento
-    onSave(eventData);
+    onSave(formData);
     
-    // Resetar o formulário
     resetForm();
     
-    // Fechar o modal
     onClose();
   };
 
@@ -219,36 +182,13 @@ const CreateEventModal = ({ open, onClose, onSave }) => {
     setDescription('');
     setLocation('');
     setDateTime(new Date());
-    setPrivacy('public');
     setEventImage(null);
     setImagePreview('');
-    setTaggedFriends([]);
-    setExcludedFriends([]);
-    setSelectedGroup('');
   };
 
-  // Handler para fechar o modal
   const handleClose = () => {
     resetForm();
     onClose();
-  };
-
-  // Renderizar ícone de privacidade baseado na seleção
-  const renderPrivacyIcon = (privacyType) => {
-    switch (privacyType) {
-      case 'public':
-        return <PublicIcon />;
-      case 'friends':
-        return <PeopleIcon />;
-      case 'friends-except':
-        return <PersonOffIcon />;
-      case 'only-me':
-        return <LockIcon />;
-      case 'group':
-        return <GroupIcon />;
-      default:
-        return <PublicIcon />;
-    }
   };
 
   return (
@@ -365,102 +305,6 @@ const CreateEventModal = ({ open, onClose, onSave }) => {
 
           <FormField>
             <FormLabel variant="subtitle2">
-              <PublicIcon fontSize="small" />
-              Privacidade
-            </FormLabel>
-            <FormControl fullWidth variant="outlined">
-              <Select
-                value={privacy}
-                onChange={(e) => setPrivacy(e.target.value)}
-                displayEmpty
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {renderPrivacyIcon(selected)}
-                    <Typography sx={{ ml: 1 }}>
-                      {selected === 'public' && 'Público'}
-                      {selected === 'friends' && 'Amigos'}
-                      {selected === 'friends-except' && 'Amigos, exceto...'}
-                      {selected === 'only-me' && 'Somente eu'}
-                      {selected === 'group' && 'Grupos'}
-                    </Typography>
-                  </Box>
-                )}
-              >
-                <MenuItem value="public">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <PublicIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                    <Typography>Público</Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="friends">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <PeopleIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                    <Typography>Amigos</Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="friends-except">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <PersonOffIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                    <Typography>Amigos, exceto...</Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="only-me">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <LockIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                    <Typography>Somente eu</Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="group">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <GroupIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                    <Typography>Grupos</Typography>
-                  </Box>
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </FormField>
-
-          {/* Mostrar seleção de grupos somente se a privacidade for "group" */}
-          {privacy === 'group' && (
-            <FormField>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>Selecionar Grupo</InputLabel>
-                <Select
-                  value={selectedGroup}
-                  onChange={(e) => setSelectedGroup(e.target.value)}
-                  label="Selecionar Grupo"
-                >
-                  {groupsList.map((group) => (
-                    <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </FormField>
-          )}
-
-          {/* Mostrar seleção de amigos excluídos somente se a privacidade for "friends-except" */}
-          {privacy === 'friends-except' && (
-            <FormField>
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                Selecione amigos para excluir:
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                {friendsList.map((friend) => (
-                  <StyledChip
-                    key={friend.id}
-                    avatar={<Avatar alt={friend.name} src={friend.avatar} />}
-                    label={friend.name}
-                    onClick={() => handleToggleExcludedFriend(friend)}
-                    color={excludedFriends.some(f => f.id === friend.id) ? "primary" : "default"}
-                    variant={excludedFriends.some(f => f.id === friend.id) ? "filled" : "outlined"}
-                  />
-                ))}
-              </Box>
-            </FormField>
-          )}
-
-          <FormField>
-            <FormLabel variant="subtitle2">
               <LocationOnIcon fontSize="small" />
               Localização
             </FormLabel>
@@ -542,51 +386,6 @@ const CreateEventModal = ({ open, onClose, onSave }) => {
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
-            </Grid>
-          </FormField>
-
-          <FormField>
-            <FormLabel variant="subtitle2">
-              <PersonAddIcon fontSize="small" />
-              Marcar Amigos
-            </FormLabel>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Amigos marcados:
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 2 }}>
-              {taggedFriends.length > 0 ? (
-                taggedFriends.map((friend) => (
-                  <StyledChip
-                    key={friend.id}
-                    avatar={<Avatar alt={friend.name} src={friend.avatar} />}
-                    label={friend.name}
-                    onDelete={() => handleRemoveFriend(friend.id)}
-                    sx={{ m: 0.5 }}
-                  />
-                ))
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  Nenhum amigo marcado ainda
-                </Typography>
-              )}
-            </Box>
-            
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-              Sugestões:
-            </Typography>
-            <Grid container spacing={1}>
-              {friendsList
-                .filter(friend => !taggedFriends.some(f => f.id === friend.id))
-                .map((friend) => (
-                  <Grid item key={friend.id}>
-                    <StyledChip
-                      avatar={<Avatar alt={friend.name} src={friend.avatar} />}
-                      label={friend.name}
-                      onClick={() => handleAddFriend(friend)}
-                      variant="outlined"
-                    />
-                  </Grid>
-                ))}
             </Grid>
           </FormField>
         </Box>
