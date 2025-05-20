@@ -9,6 +9,7 @@ namespace SociAll.DataTransfer.Eventos.Request
         public List<int> CategoriaEventoIds { get; set; }
         public string NomeCriador { get; set; }
         public DateTime Data { get; set; }
+        public int? IdUsuario { get; set; }
 
         public ListarEventoRequest() : base(string.Empty, TipoOrdenacaoEnum.Asc) { }
     }

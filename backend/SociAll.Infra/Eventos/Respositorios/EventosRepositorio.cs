@@ -25,6 +25,9 @@ namespace SociAll.Infra.Eventos.Respositorios
             if (filtro.Data != DateTime.MinValue)
                 query = query.Where(x => x.Data.Date == filtro.Data.Date);
 
+            if (filtro.IdUsuario != null && filtro.IdUsuario > 0)
+                query =  query.Where(query => query.Usuario.Id == filtro.IdUsuario);
+
             PaginacaoConsulta<Evento> eventos = Listar(query, filtro.Qt, filtro.Pg, filtro.CpOrd, filtro.TpOrd);
 
             return eventos;
