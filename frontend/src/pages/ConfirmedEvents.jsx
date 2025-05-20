@@ -3,23 +3,20 @@ import {
   Box, 
   Container, 
   Typography, 
-  TextField, 
-  InputAdornment,
   Grid,
   Button,
   AppBar,
   Toolbar,
+  Chip,
   Paper,
   Fade,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
-import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import EventCard from '../components/Events/EventCard';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,7 +40,7 @@ const SociAllLogo = () => (
 );
 
 // Container principal com reset de margens
-const EventListRoot = styled(Box)(({ theme }) => ({
+const ConfirmedEventsRoot = styled(Box)(({ theme }) => ({
   margin: 0,
   padding: 0,
   minHeight: '100vh',
@@ -108,31 +105,6 @@ const NavButton = styled(Button)(({ theme }) => ({
   }
 }));
 
-// Campo de pesquisa estilizado
-const SearchField = styled(TextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    borderRadius: 10,
-    backgroundColor: alpha('#ffffff', 0.95),
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
-    },
-    '&.Mui-focused': {
-      boxShadow: '0 4px 15px rgba(37, 59, 110, 0.15)',
-    }
-  },
-  '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: alpha('#d2ecf9', 0.5),
-  },
-  '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: alpha('#a5d9f3', 0.7),
-  },
-  '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#324f94',
-  }
-}));
-
 // Container de conteúdo estilizado
 const StyledContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
@@ -162,6 +134,23 @@ const TitleCard = styled(Paper)(({ theme }) => ({
   }
 }));
 
+// Estilo para os cards de evento
+const EventCard = styled(Paper)(({ theme }) => ({
+  borderRadius: 15,
+  overflow: 'hidden',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'all 0.3s ease',
+  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.07)',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    boxShadow: '0 12px 30px rgba(37, 59, 110, 0.12)',
+  }
+}));
+
 // Footer estilizado
 const StyledFooter = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -183,9 +172,36 @@ const StyledFooter = styled(Box)(({ theme }) => ({
   }
 }));
 
-const EventList = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [eventsData, setEventsData] = useState([]);
+// Botão de cancelamento estilizado
+const CancelButton = styled(Button)(({ theme }) => ({
+  borderRadius: 10,
+  padding: '8px 16px',
+  textTransform: 'none',
+  fontWeight: 600,
+  transition: 'all 0.3s ease',
+  borderColor: '#ff3d00',
+  color: '#ff3d00',
+  '&:hover': {
+    borderColor: '#d32f2f',
+    backgroundColor: alpha('#ffe0de', 0.2),
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 12px rgba(211, 47, 47, 0.1)',
+  }
+}));
+
+// Chip estilizado
+const StyledChip = styled(Chip)(({ theme }) => ({
+  borderRadius: 8,
+  fontWeight: 600,
+  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+  background: 'linear-gradient(90deg, #4caf50, #81c784)',
+  '& .MuiChip-icon': {
+    color: '#ffffff',
+  }
+}));
+
+const ConfirmedEvents = () => {
+  const [confirmedEventsData, setConfirmedEventsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -193,80 +209,96 @@ const EventList = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchConfirmedEvents = async () => {
       setLoading(true);
       setError(null);
 
-      const request = {
-        NomeEvento: "",
-        CategoriaEventoIds: [],
-        NomeCriador: "",
-        Data: "",
-        Pg: 1,
-        Qt: 10,
-      };
-
       try {
-        const response = await axios.get('http://localhost:5173/api/eventos', request);
-        setEventsData(response.data.registros);
-        console.log('Eventos recebidos:', eventsData);
+        // Aqui você faria uma chamada para buscar os eventos confirmados pelo usuário
+        // Exemplo: const response = await axios.get('http://localhost:5173/api/eventos-confirmados');
+        // Usando dados fictícios por enquanto
+        const mockData = [
+          {
+            id: 3,
+            nome: "Palestra sobre React",
+            descricao: "Palestra sobre as novidades do React",
+            data: "2025-06-20",
+            horario: "19:00",
+            local: "Centro de Convenções",
+            criador: "Maria Oliveira",
+            categoria: "Tecnologia",
+            imagem: "https://via.placeholder.com/150"
+          },
+          {
+            id: 4,
+            nome: "Meetup de Desenvolvedores",
+            descricao: "Encontro para networking entre desenvolvedores",
+            data: "2025-06-25",
+            horario: "18:30",
+            local: "Coworking Central",
+            criador: "Pedro Santos",
+            categoria: "Tecnologia",
+            imagem: "https://via.placeholder.com/150"
+          },
+          {
+            id: 5,
+            nome: "Feira de Startups",
+            descricao: "Feira com apresentação de startups inovadoras",
+            data: "2025-07-05",
+            horario: "10:00",
+            local: "Centro Empresarial",
+            criador: "Ana Costa",
+            categoria: "Negócios",
+            imagem: "https://via.placeholder.com/150"
+          }
+        ];
+        
+        setConfirmedEventsData(mockData);
       } catch (err) {
-        console.error('Erro ao buscar eventos:', err);
+        console.error('Erro ao buscar eventos confirmados:', err);
         setError(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEvents();
-  }, [searchTerm]); // Atualiza sempre que searchTerm mudar
+    fetchConfirmedEvents();
+  }, []);
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleConfirmPresence = (eventId) => {
-    console.log(`Presença confirmada no evento ${eventId}`);
-  };
-
-  const handleAddEvent = (organizerId) => {
-    console.log(`Adicionando evento do organizador ${organizerId}`);
+  const handleBackToEvents = () => {
+    navigate('/');
   };
 
   const handleNavigateToMyEvents = () => {
     navigate('/meus-eventos');
   };
 
-  const handleNavigateToConfirmed = () => {
-    navigate('/eventos-confirmados');
+  const handleCancelPresence = (eventId) => {
+    console.log(`Cancelando presença no evento ${eventId}`);
+    // Implementar lógica para cancelar presença
   };
 
   return (
-    <EventListRoot>
+    <ConfirmedEventsRoot>
       <FloatingShape position="top" />
       <FloatingShape />
       
-      <StyledAppBar>
+      <StyledAppBar position="static">
         <Toolbar>
           <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
             <SociAllLogo />
           </Box>
           
-          <SearchField
-            placeholder="Pesquisar eventos..."
-            variant="outlined"
-            size="small"
-            sx={{ flexGrow: 1 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#253b6e' }} />
-                </InputAdornment>
-              ),
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              flexGrow: 1, 
+              fontWeight: 600,
+              letterSpacing: '0.5px'
             }}
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
+          >
+            Eventos Confirmados
+          </Typography>
           
           <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button 
@@ -295,10 +327,9 @@ const EventList = () => {
 
             <NavButton 
               variant="contained" 
-              startIcon={<CheckCircleIcon />}
-              onClick={handleNavigateToConfirmed}
+              onClick={handleBackToEvents}
             >
-              Confirmados
+              Lista de Eventos
             </NavButton>
           </Box>
         </Toolbar>
@@ -320,12 +351,12 @@ const EventList = () => {
                 gap: 1
               }}
             >
-              <CalendarMonthIcon sx={{ 
-                color: '#253b6e',
+              <CheckCircleIcon sx={{ 
+                color: '#4caf50',
                 fontSize: '1.5rem',
                 verticalAlign: 'middle' 
               }} />
-              Descubra Eventos
+              Eventos em que você confirmou presença
             </Typography>
             <Typography 
               variant="body1" 
@@ -335,14 +366,14 @@ const EventList = () => {
                 maxWidth: '80%' 
               }}
             >
-              Explore e encontre os melhores eventos para participar
+              Gerencie sua agenda de eventos confirmados
             </Typography>
           </TitleCard>
 
           {loading && (
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <Typography variant="h6" sx={{ color: alpha('#324f94', 0.8) }}>
-                Carregando eventos...
+                Carregando eventos confirmados...
               </Typography>
             </Box>
           )}
@@ -350,19 +381,118 @@ const EventList = () => {
           {error && (
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <Typography variant="h6" sx={{ color: '#d32f2f' }}>
-                Falha ao carregar eventos.
+                Falha ao carregar eventos confirmados.
+              </Typography>
+            </Box>
+          )}
+
+          {!loading && confirmedEventsData.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography variant="h6" sx={{ color: alpha('#324f94', 0.8) }}>
+                Você ainda não confirmou presença em nenhum evento.
               </Typography>
             </Box>
           )}
 
           <Grid container spacing={3}>
-            {!loading && eventsData.map((event) => (
+            {!loading && confirmedEventsData.map((event) => (
               <Grid item xs={12} sm={6} md={4} key={event.id}>
-                <EventCard 
-                  event={event} 
-                  onConfirmPresence={handleConfirmPresence}
-                  onAddEvent={handleAddEvent}
-                />
+                <EventCard>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      p: 2,
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <StyledChip 
+                      label="Confirmado" 
+                      size="small"
+                      icon={<CheckCircleIcon />}
+                      sx={{ 
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        zIndex: 1
+                      }}
+                    />
+                    
+                    <Box 
+                      component="img"
+                      src={event.imagem}
+                      sx={{
+                        width: '100%',
+                        height: 150,
+                        objectFit: 'cover',
+                        borderRadius: 2,
+                        mb: 2,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'scale(1.02)',
+                          boxShadow: '0 6px 15px rgba(0, 0, 0, 0.15)',
+                        }
+                      }}
+                    />
+                    
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        mb: 1,
+                        fontWeight: 700,
+                        color: '#253b6e'
+                      }}
+                    >
+                      {event.nome}
+                    </Typography>
+                    
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        mb: 2,
+                        color: alpha('#324f94', 0.8)
+                      }}
+                    >
+                      {event.descricao}
+                    </Typography>
+                    
+                    <Box sx={{ 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 0.5,
+                      mb: 2,
+                      '& .MuiTypography-root': {
+                        color: alpha('#324f94', 0.9),
+                        fontWeight: 500
+                      }
+                    }}>
+                      <Typography variant="body2">
+                        <strong>Data:</strong> {new Date(event.data).toLocaleDateString()} às {event.horario}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Local:</strong> {event.local}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Organizador:</strong> {event.criador}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Categoria:</strong> {event.categoria}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ mt: 'auto' }}>
+                      <CancelButton 
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => handleCancelPresence(event.id)}
+                      >
+                        Cancelar Presença
+                      </CancelButton>
+                    </Box>
+                  </Box>
+                </EventCard>
               </Grid>
             ))}
           </Grid>
@@ -383,8 +513,8 @@ const EventList = () => {
           SociAll © {new Date().getFullYear()}
         </Typography>
       </StyledFooter>
-    </EventListRoot>
+    </ConfirmedEventsRoot>
   );
 };
 
-export default EventList;
+export default ConfirmedEvents;
