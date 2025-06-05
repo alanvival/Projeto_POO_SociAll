@@ -266,11 +266,15 @@ const ConfirmedEvents = () => {
   }, []);
 
   const handleBackToEvents = () => {
-    navigate('/');
+    navigate('/events');
   };
 
   const handleNavigateToMyEvents = () => {
     navigate('/meus-eventos');
+  };
+
+  const handleNavigateToProfile = () => {
+    navigate('/perfil'); 
   };
 
   const handleCancelPresence = (eventId) => {
@@ -313,6 +317,7 @@ const ConfirmedEvents = () => {
                   backgroundColor: alpha('#ffffff', 0.1)
                 }
               }}
+              onClick={handleNavigateToProfile}
             >
               Meu Perfil
             </Button>

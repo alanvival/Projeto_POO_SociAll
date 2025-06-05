@@ -298,7 +298,11 @@ const MyEvents = () => {
   }, []);
 
   const handleBackToEvents = () => {
-    navigate('/');
+    navigate('/events');
+  };
+
+  const handleNavigateToProfile = () => {
+    navigate('/perfil');
   };
 
   const handleNavigateToConfirmed = () => {
@@ -387,6 +391,7 @@ const MyEvents = () => {
                   backgroundColor: alpha('#ffffff', 0.1)
                 }
               }}
+              onClick={handleNavigateToProfile}
             >
               Meu Perfil
             </Button>
