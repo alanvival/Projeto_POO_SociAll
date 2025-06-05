@@ -206,54 +206,20 @@ const ConfirmedEvents = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const infoUsuario = JSON.parse(localStorage.getItem('infoUsuario'));
 
   useEffect(() => {
+    if (!infoUsuario || !infoUsuario.id) {
+        setError(new Error("Usuário não autenticado."));
+        return;
+    }
+
     const fetchConfirmedEvents = async () => {
       setLoading(true);
       setError(null);
-
       try {
-        // Aqui você faria uma chamada para buscar os eventos confirmados pelo usuário
-        // Exemplo: const response = await axios.get('http://localhost:5173/api/eventos-confirmados');
-        // Usando dados fictícios por enquanto
-        const mockData = [
-          {
-            id: 3,
-            nome: "Palestra sobre React",
-            descricao: "Palestra sobre as novidades do React",
-            data: "2025-06-20",
-            horario: "19:00",
-            local: "Centro de Convenções",
-            criador: "Maria Oliveira",
-            categoria: "Tecnologia",
-            imagem: "https://via.placeholder.com/150"
-          },
-          {
-            id: 4,
-            nome: "Meetup de Desenvolvedores",
-            descricao: "Encontro para networking entre desenvolvedores",
-            data: "2025-06-25",
-            horario: "18:30",
-            local: "Coworking Central",
-            criador: "Pedro Santos",
-            categoria: "Tecnologia",
-            imagem: "https://via.placeholder.com/150"
-          },
-          {
-            id: 5,
-            nome: "Feira de Startups",
-            descricao: "Feira com apresentação de startups inovadoras",
-            data: "2025-07-05",
-            horario: "10:00",
-            local: "Centro Empresarial",
-            criador: "Ana Costa",
-            categoria: "Negócios",
-            imagem: "https://via.placeholder.com/150"
-          }
-        ];
-        
-        setConfirmedEventsData(mockData);
+        const response = await axios.get(`http://localhost:5173/api/eventos/inscritos/${infoUsuario.id}`);
+        setConfirmedEventsData(response.data);
       } catch (err) {
         console.error('Erro ao buscar eventos confirmados:', err);
         setError(err);
@@ -263,7 +229,7 @@ const ConfirmedEvents = () => {
     };
 
     fetchConfirmedEvents();
-  }, []);
+  }, [infoUsuario?.id]);
 
   const handleBackToEvents = () => {
     navigate('/events');
@@ -277,9 +243,27 @@ const ConfirmedEvents = () => {
     navigate('/perfil'); 
   };
 
-  const handleCancelPresence = (eventId) => {
-    console.log(`Cancelando presença no evento ${eventId}`);
-    // Implementar lógica para cancelar presença
+  const handleCancelPresence = async (eventoId) => {
+    if (!infoUsuario || !infoUsuario.id) {
+        alert("Usuário não identificado para cancelar a inscrição.");
+        return;
+    }
+
+    if (window.confirm("Tem certeza que deseja cancelar a presença neste evento?")) {
+      try {
+        await axios.delete(`http://localhost:5173/api/inscricoes`, { 
+            params: { eventoId, usuarioId: infoUsuario.id } 
+        });
+
+        setConfirmedEventsData(currentEvents =>
+          currentEvents.filter(event => event.id !== eventoId)
+        );
+        
+      } catch (err) {
+        console.error('Erro ao cancelar presença:', err);
+        alert("Falha ao cancelar a presença. Tente novamente.");
+      }
+    }
   };
 
   return (
@@ -426,7 +410,7 @@ const ConfirmedEvents = () => {
                     
                     <Box 
                       component="img"
-                      src={event.imagem}
+                      src={event.imagem || 'https://farm7.staticflickr.com/6089/6115759179_86316c08ff_z_d.jpg'}
                       sx={{
                         width: '100%',
                         height: 150,
@@ -477,13 +461,13 @@ const ConfirmedEvents = () => {
                         <strong>Data:</strong> {new Date(event.data).toLocaleDateString()} às {event.horario}
                       </Typography>
                       <Typography variant="body2">
-                        <strong>Local:</strong> {event.local}
+                        <strong>Local:</strong> {event.endereco}
                       </Typography>
                       <Typography variant="body2">
-                        <strong>Organizador:</strong> {event.criador}
+                        <strong>Organizador:</strong> {event.usuario.nome}
                       </Typography>
                       <Typography variant="body2">
-                        <strong>Categoria:</strong> {event.categoria}
+                        <strong>Categoria:</strong> {event.categoria || 'Não especificada'}
                       </Typography>
                     </Box>
                     

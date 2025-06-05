@@ -10,5 +10,7 @@ namespace SociAll.Dominio.Eventos.Servicos.Interfaces
         Evento Validar(int id);
         Evento Inserir(InserirEventoComando comando);
         PaginacaoConsulta<Evento> Listar(EventosListarFiltro filtro);
+        Evento Editar(int id, EditarEventoComando comando);
+        void Deletar(int id);
     }
 }

@@ -7,5 +7,6 @@ namespace SociAll.Aplicacao.Usuarios.Servicos.Interfaces
     {
         UsuarioResponse Inserir(UsuarioInserirRequest request);
         UsuarioResponse Autenticar(AutenticacaoRequest request);
+        UsuarioResponse Editar(int id, UsuarioEditarRequest request);
     }
 }

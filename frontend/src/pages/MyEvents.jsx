@@ -23,7 +23,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 // Importe o modal no início do arquivo MyEvents.jsx
-import CreateEventModal from './CreateEventModal'; // Ajuste o caminho conforme necessário
+import CreateEventModal from './CreateEventModal';
+import EditEventModal from '../components/Events/EditEventModal';
 
 // Logo original com estilo atualizado
 const SociAllLogo = () => (
@@ -251,6 +252,10 @@ const MyEvents = () => {
   const [error, setError] = useState(null);
   // Adicione este estado para controlar a visibilidade do modal
   const [openCreateModal, setOpenCreateModal] = useState(false);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const navigate = useNavigate();
   const theme = useTheme();
   const infoUsuario = JSON.parse(localStorage.getItem('infoUsuario'));
@@ -295,14 +300,62 @@ const MyEvents = () => {
   };
 
   const handleModifyEvent = (eventId) => {
-    console.log(`Modificando evento ${eventId}`);
-    // Implementar navegação para edição de evento
-    // navigate(`/editar-evento/${eventId}`);
+    const eventToEdit = myEventsData.find(event => event.id === eventId);
+    if (eventToEdit) {
+      setSelectedEvent(eventToEdit);
+      setIsEditModalOpen(true);
+    }
   };
 
-  const handleDeleteEvent = (eventId) => {
-    console.log(`Excluindo evento ${eventId}`);
-    // Implementar lógica para excluir evento
+  const handleUpdateEvent = async (eventId, eventData) => {
+    try {
+        const requestData = {
+            Nome: eventData.nome,
+            Data: eventData.data.toISOString(),
+            Descricao: eventData.descricao,
+            Foto: eventData.foto,
+            Endereco: eventData.endereco
+        };
+
+        const response = await axios.put(`http://localhost:5173/api/eventos/${eventId}`, requestData);
+        
+        // Atualiza a lista de eventos com os dados retornados pela API
+        setMyEventsData(currentEvents =>
+            currentEvents.map(event =>
+                event.id === eventId ? response.data : event
+            )
+        );
+
+        setIsEditModalOpen(false); // Fecha o modal
+        setSelectedEvent(null);    // Limpa o evento selecionado
+        alert('Evento atualizado com sucesso!');
+
+    } catch (err) {
+        console.error('Erro ao atualizar evento:', err);
+        alert('Falha ao atualizar o evento.');
+    }
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    const isConfirmed = window.confirm("Tem certeza de que deseja excluir este evento?");
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      await axios.delete(`http://localhost:5173/api/eventos/${eventId}`);
+
+      setMyEventsData(currentEvents =>
+        currentEvents.filter(event => event.id !== eventId)
+      );
+      
+      console.log(`Evento ${eventId} excluído com sucesso!`);
+
+    } catch (err) {
+      console.error('Erro ao excluir o evento:', err);
+      alert('Não foi possível excluir o evento. Tente novamente.');
+    }
   };
 
   // Modifique a função handleCreateEvent para abrir o modal
@@ -518,7 +571,7 @@ const MyEvents = () => {
                   <EventImage>
                     <Box 
                       component="img"
-                      src={event.imagem}
+                      src={event.imagem || 'https://farm7.staticflickr.com/6089/6115759179_86316c08ff_z_d.jpg'}
                       sx={{
                         width: '100%',
                         height: '100%',
@@ -573,23 +626,6 @@ const MyEvents = () => {
                         })}
                       </Typography>
                     </Box>
-                    
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        mb: 2,
-                        color: alpha('#324f94', 0.8),
-                        fontWeight: 500,
-                        display: 'inline-block',
-                        backgroundColor: alpha('#d2ecf9', 0.5),
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: 5,
-                        alignSelf: 'flex-start'
-                      }}
-                    >
-                      {event.categoria}
-                    </Typography>
                     
                     <Box 
                       sx={{ 
@@ -646,6 +682,19 @@ const MyEvents = () => {
         onClose={() => setOpenCreateModal(false)}
         onSave={handleSaveEvent}
       />
+      <CreateEventModal 
+            open={openCreateModal}
+            onClose={() => setOpenCreateModal(false)}
+            onSave={handleSaveEvent}
+        />
+        {selectedEvent && (
+            <EditEventModal
+                open={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleUpdateEvent}
+                event={selectedEvent}
+            />
+        )}
     </MyEventsRoot>
   );
 };

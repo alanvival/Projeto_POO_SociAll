@@ -7,5 +7,7 @@ namespace SociAll.Dominio.Inscricoes.Servicos.Interfaces
     {
         Inscricao Inscrever(int eventoId, int usuarioId);
         List<Usuario> RecuperarUsuariosInscritos(int eventoId);
+        List<Inscricao> RecuperarInscricoesUsuario(int usuarioId);
+        void CancelarInscricao(int eventoId, int usuarioId);
     }
 }

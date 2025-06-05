@@ -7,6 +7,7 @@ using SociAll.Dominio.Eventos.Entidades;
 using SociAll.Dominio.Eventos.Repositorios.Filtros;
 using SociAll.Dominio.Eventos.Servicos.Comandos;
 using SociAll.Dominio.Eventos.Servicos.Interfaces;
+using SociAll.Dominio.Inscricoes.Entidades;
 using SociAll.Dominio.Inscricoes.Servicos.Interfaces;
 using SociAll.Dominio.Util;
 
@@ -73,6 +74,59 @@ namespace SociAll.Aplicacao.Eventos.Servicos
             PaginacaoConsulta<EventoResponse> response = mapper.Map<PaginacaoConsulta<EventoResponse>>(eventos);
 
             return response;
+        }
+
+        public EventoResponse Editar(int id, EditarEventoRequest request)
+        {
+            try
+            {
+                EditarEventoComando comando = mapper.Map<EditarEventoComando>(request);
+
+                unitOfWork.BeginTransaction();
+
+                Evento evento = eventosServico.Editar(id, comando);
+
+                unitOfWork.Commit();
+
+                EventoResponse response = mapper.Map<EventoResponse>(evento);
+
+                return response;
+            }
+            catch
+            {
+                unitOfWork.Rollback();
+
+                throw;
+            }
+        }
+
+        public List<EventoResponse> ListarEventosUsuarioInscrito(int usuarioId)
+        {
+            List<Inscricao> inscricoes = inscricoesServico.RecuperarInscricoesUsuario(usuarioId);
+
+            List<Evento> eventos = inscricoes.Select(i => i.Evento).ToList();
+
+            List<EventoResponse> response = mapper.Map<List<EventoResponse>>(eventos);
+
+            return response;
+        }
+
+        public void Deletar(int id)
+        {
+            try
+            {
+                unitOfWork.BeginTransaction();
+
+                eventosServico.Deletar(id);
+
+                unitOfWork.Commit();
+            }
+            catch
+            {
+                unitOfWork.Rollback();
+
+                throw;
+            }
         }
     }
 }

@@ -50,5 +50,29 @@ namespace SociAll.Aplicacao.Usuarios.Servicos
 
             return response;
         }
+
+        public UsuarioResponse Editar(int id, UsuarioEditarRequest request)
+        {
+            try
+            {
+                UsuarioEditarComando comando = mapper.Map<UsuarioEditarComando>(request);
+
+                unitOfWork.BeginTransaction();
+
+                Usuario usuario = usuariosServico.Editar(id, comando);
+
+                unitOfWork.Commit();
+
+                UsuarioResponse response = mapper.Map<UsuarioResponse>(usuario);
+
+                return response;
+            }
+            catch
+            {
+                unitOfWork.Rollback();
+
+                throw;
+            }
+        }
     }
 }

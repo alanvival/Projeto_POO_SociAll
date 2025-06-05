@@ -7,5 +7,6 @@ namespace SociAll.Dominio.Inscricoes.Repositorios
     public interface IInscricoesRepositorio : IGenericosRepositorio<Inscricao>
     {
         List<Usuario> RecuperarUsuariosInscritos(int eventoId);
+        List<Inscricao> RecuperarInscricoesUsuario(int idUsuario);
     }
 }

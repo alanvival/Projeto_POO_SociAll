@@ -29,8 +29,10 @@ import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import EditProfileModal from '../components/EditProfileModal';
+import axios from 'axios';
 
 // Logo igual EventList
 const SociAllLogo = () => (
@@ -177,38 +179,16 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.dark,
 }));
 
-// Dados mockados iniciais
-const initialUser = {
-  name: 'Mauro Davi dos Santos Nepomuceno',
-  role: 'Estudante',
-  bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas.',
-  avatarUrl: '',
-  interests: [
-    { icon: <SportsSoccerIcon />, text: 'Ar Livre' },
-    { icon: <TheatersIcon />, text: 'Cinema' },
-    { icon: <MusicNoteIcon />, text: 'Música' },
-  ],
-  favoritePlaces: [
-    { icon: <LocalMallIcon />, text: 'Shopping Vitória' },
-    { icon: <RestaurantIcon />, text: "Rick's Burguer" },
-    { icon: <LocalCafeIcon />, text: 'Dice CofeeHouse' },
-  ],
-  address: {
-    street: 'Rua aleatória, 35',
-    neighborhood: 'Boa Vista',
-    city: 'Vila Velha - ES',
-  },
-};
-
 export default function Profile() {
   const navigate = useNavigate();
-  const theme = useTheme();
+  const infoUsuario = JSON.parse(localStorage.getItem('infoUsuario'));
+
 
   // Estado para abrir/fechar modal
   const [editOpen, setEditOpen] = useState(false);
 
   // Estado dos dados do usuário (editável)
-  const [userData, setUserData] = useState(initialUser);
+  const [userData, setUserData] = useState(infoUsuario);
 
   // Navegação dos botões do header
   const handleNavigateToProfile = () => {
@@ -224,6 +204,14 @@ export default function Profile() {
     navigate('/events');
   };
 
+  const handleLogout = () => {
+    const isConfirmed = window.confirm("Tem certeza que deseja sair?");
+    if (isConfirmed) {
+      localStorage.clear();
+      navigate("/");
+    }
+  };
+
   // Ícones para interesses e lugares favoritos (cíclico)
   const iconList = [
     <SportsSoccerIcon />,
@@ -236,27 +224,49 @@ export default function Profile() {
     <LocalCafeIcon />
   ];
 
+  const [listaPreferenciasCompleta, setListaPreferenciasCompleta] = useState([
+    { id: 1, descricao: 'Futebol' },
+    { id: 2, descricao: 'Jogos' },
+    { id: 3, descricao: 'Filmes' },
+    { id: 4, descricao: 'Praias' },
+    { id: 5, descricao: 'Comida' },
+    { id: 6, descricao: 'Música' }
+  ]);
+
   // Handler para salvar alterações do perfil
-  const handleSaveProfile = (form) => {
-    setUserData({
-      ...userData,
-      name: form.name,
-      bio: form.bio,
-      interests: form.interests.map((text, idx) => ({
-        icon: iconList[idx % iconList.length],
-        text
-      })),
-      favoritePlaces: form.favoritePlaces.map((text, idx) => ({
-        icon: placeIconList[idx % placeIconList.length],
-        text
-      })),
-      address: {
-        street: form.street,
-        neighborhood: form.neighborhood,
-        city: form.city,
-      }
-    });
-    // Aqui você pode fazer uma chamada à API para salvar no backend, se desejar
+  const handleSaveProfile = async (form) => {
+    // 1. Mapear nomes de preferências para os IDs esperados pelo backend
+    const idsPreferencias = form.preferencias
+      .map(nomePreferencia => {
+        const preferenciaEncontrada = listaPreferenciasCompleta.find(
+          p => p.descricao === nomePreferencia
+        );
+        return preferenciaEncontrada ? preferenciaEncontrada.id : null;
+      })
+      .filter(id => id !== null);
+      
+    const requestData = {
+      nome: form.nome,
+      biografia: form.biografia,
+      endereco: form.endereco,
+      idsPreferencias: idsPreferencias,
+      lugaresFavoritos: form.lugaresFavoritos,
+    };
+
+    try {
+      const response = await axios.put(`http://localhost:5173/api/usuarios/${userData.id}`, requestData);
+
+      const usuarioAtualizado = response.data;
+
+      setUserData(usuarioAtualizado);
+
+      localStorage.setItem('infoUsuario', JSON.stringify(usuarioAtualizado));
+
+      console.log('Perfil atualizado com sucesso!', usuarioAtualizado);
+    } 
+    catch (error) {
+      console.error('Falha ao atualizar o perfil:', error);
+    }
   };
 
   return (
@@ -311,37 +321,53 @@ export default function Profile() {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 6, position: 'relative', zIndex: 1 }}>
           <ProfileBanner />
           <ProfileContent elevation={3}>
-            <ProfileAvatar alt={userData.name} src={userData.avatarUrl}>
-              {userData.avatarUrl ? null : userData.name.charAt(0)}
+            <ProfileAvatar alt={userData.nome} src={userData.avatarUrl}>
+              {userData.nome.charAt(0)}
             </ProfileAvatar>
-            <EditButton
-              variant="outlined"
-              size="small"
-              startIcon={<EditIcon />}
-              onClick={() => setEditOpen(true)}
-            >
-              Editar
-            </EditButton>
+            <Box sx={{
+              position: 'absolute',
+              top: (theme) => theme.spacing(2),
+              right: (theme) => theme.spacing(2),
+              display: 'flex',
+              gap: 1 // Adiciona um espaço entre os botões
+            }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<EditIcon />}
+                onClick={() => setEditOpen(true)}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                color="error" // Cor vermelha para indicar uma ação de saída
+                startIcon={<LogoutIcon />}
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            </Box>
             <Box sx={{ pl: '150px', pt: 1 }}>
               <Typography variant="h5" component="h1" fontWeight="bold">
-                {userData.name}
+                {userData.nome}
               </Typography>
               <Typography variant="body1" color="textSecondary" gutterBottom>
-                {userData.role}
+                {userData.role || 'Usuário'}
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                {userData.bio}
+                {userData.biografia || 'Escreva sua Bio.'}
               </Typography>
             </Box>
             <Divider sx={{ my: 3 }} />
             <Grid container spacing={4}>
               <Grid item xs={12} md={4}>
-                <SectionTitle variant="h6">Interesses</SectionTitle>
+                <SectionTitle variant="h6">Preferências</SectionTitle>
                 <List dense>
-                  {userData.interests.map((item, index) => (
+                  {userData.preferencias.map((item, index) => (
                     <ListItem key={index} disablePadding>
-                      <ListItemIcon sx={{ minWidth: 35 }}>{item.icon}</ListItemIcon>
-                      <ListItemText primary={item.text} />
+                      <ListItemText primary={item.preferencia.descricao} />
                     </ListItem>
                   ))}
                 </List>
@@ -349,10 +375,9 @@ export default function Profile() {
               <Grid item xs={12} md={4}>
                 <SectionTitle variant="h6">Lugares Favoritos</SectionTitle>
                 <List dense>
-                  {userData.favoritePlaces.map((item, index) => (
+                  {userData.lugaresFavoritos.map((item, index) => (
                     <ListItem key={index} disablePadding>
-                      <ListItemIcon sx={{ minWidth: 35 }}>{item.icon}</ListItemIcon>
-                      <ListItemText primary={item.text} />
+                      <ListItemText primary={item.nome} />
                     </ListItem>
                   ))}
                 </List>
@@ -365,8 +390,7 @@ export default function Profile() {
                       <LocationOnIcon />
                     </ListItemIcon>
                     <ListItemText
-                      primary={userData.address.street}
-                      secondary={`${userData.address.neighborhood}, ${userData.address.city}`}
+                      primary={userData.endereco}
                     />
                   </ListItem>
                 </List>

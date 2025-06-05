@@ -47,13 +47,11 @@ const SectionLabel = styled(Typography)(({ theme }) => ({
 
 export default function EditProfileModal({ open, onClose, user, onSave }) {
   const [form, setForm] = useState({
-    name: user.name,
-    bio: user.bio,
-    street: user.address.street,
-    neighborhood: user.address.neighborhood,
-    city: user.address.city,
-    interests: user.interests.map(i => i.text),
-    favoritePlaces: user.favoritePlaces.map(i => i.text),
+    nome: user.nome || '',
+    biografia: user.biografia || '',
+    endereco: user.endereco || '',
+    preferencias: user.preferencias ? user.preferencias.map(i => i.preferencia.descricao) : [],
+    lugaresFavoritos: user.lugaresFavoritos ? user.lugaresFavoritos.map(i => i.nome) : [],
   });
 
   const handleChange = (e) => {
@@ -104,8 +102,8 @@ export default function EditProfileModal({ open, onClose, user, onSave }) {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
               <TextField
                 label="Nome"
-                name="name"
-                value={form.name}
+                name="nome"
+                value={form.nome}
                 onChange={handleChange}
                 fullWidth
                 variant="filled"
@@ -114,7 +112,7 @@ export default function EditProfileModal({ open, onClose, user, onSave }) {
               <TextField
                 label="Bio"
                 name="bio"
-                value={form.bio}
+                value={form.biografia}
                 onChange={handleChange}
                 fullWidth
                 multiline
@@ -124,24 +122,24 @@ export default function EditProfileModal({ open, onClose, user, onSave }) {
               />
 
               <SectionLabel>Interesses</SectionLabel>
-              {form.interests.map((interest, idx) => (
+              {form.preferencias.map((interest, idx) => (
                 <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <TextField
                     label={`Interesse ${idx + 1}`}
                     value={interest}
-                    onChange={e => handleArrayChange('interests', idx, e.target.value)}
+                    onChange={e => handleArrayChange('preferencias', idx, e.target.value)}
                     fullWidth
                     variant="filled"
                     sx={{ borderRadius: 2, background: alpha('#d2ecf9', 0.13) }}
                   />
-                  <IconButton onClick={() => handleRemoveArrayItem('interests', idx)} disabled={form.interests.length <= 1}>
+                  <IconButton onClick={() => handleRemoveArrayItem('preferencias', idx)} disabled={form.preferencias.length <= 1}>
                     <DeleteIcon sx={{ color: '#d32f2f' }} />
                   </IconButton>
                 </Box>
               ))}
               <Button
                 startIcon={<AddIcon />}
-                onClick={() => handleAddArrayItem('interests')}
+                onClick={() => handleAddArrayItem('preferencias')}
                 sx={{
                   alignSelf: 'flex-start',
                   mb: 1,
@@ -154,24 +152,24 @@ export default function EditProfileModal({ open, onClose, user, onSave }) {
               </Button>
 
               <SectionLabel>Lugares Favoritos</SectionLabel>
-              {form.favoritePlaces.map((place, idx) => (
+              {form.lugaresFavoritos.map((place, idx) => (
                 <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <TextField
                     label={`Lugar ${idx + 1}`}
                     value={place}
-                    onChange={e => handleArrayChange('favoritePlaces', idx, e.target.value)}
+                    onChange={e => handleArrayChange('lugaresFavoritos', idx, e.target.value)}
                     fullWidth
                     variant="filled"
                     sx={{ borderRadius: 2, background: alpha('#d2ecf9', 0.13) }}
                   />
-                  <IconButton onClick={() => handleRemoveArrayItem('favoritePlaces', idx)} disabled={form.favoritePlaces.length <= 1}>
+                  <IconButton onClick={() => handleRemoveArrayItem('lugaresFavoritos', idx)} disabled={form.lugaresFavoritos.length <= 1}>
                     <DeleteIcon sx={{ color: '#d32f2f' }} />
                   </IconButton>
                 </Box>
               ))}
               <Button
                 startIcon={<AddIcon />}
-                onClick={() => handleAddArrayItem('favoritePlaces')}
+                onClick={() => handleAddArrayItem('lugaresFavoritos')}
                 sx={{
                   alignSelf: 'flex-start',
                   mb: 1,
@@ -185,27 +183,9 @@ export default function EditProfileModal({ open, onClose, user, onSave }) {
 
               <SectionLabel>Endereço</SectionLabel>
               <TextField
-                label="Rua"
-                name="street"
-                value={form.street}
-                onChange={handleChange}
-                fullWidth
-                variant="filled"
-                sx={{ borderRadius: 2, background: alpha('#d2ecf9', 0.13) }}
-              />
-              <TextField
-                label="Bairro"
-                name="neighborhood"
-                value={form.neighborhood}
-                onChange={handleChange}
-                fullWidth
-                variant="filled"
-                sx={{ borderRadius: 2, background: alpha('#d2ecf9', 0.13) }}
-              />
-              <TextField
-                label="Cidade"
-                name="city"
-                value={form.city}
+                label="Endereço"
+                name="endereco"
+                value={form.endereco}
                 onChange={handleChange}
                 fullWidth
                 variant="filled"

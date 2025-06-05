@@ -281,7 +281,7 @@ const EventList = () => {
         setError(err);
       }
     }
-  };Nn
+  };
 
   const handleAddEvent = (organizerId) => {
     console.log(`Adicionando evento do organizador ${organizerId}`);

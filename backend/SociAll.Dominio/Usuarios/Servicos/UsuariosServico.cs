@@ -66,5 +66,65 @@ namespace SociAll.Dominio.Usuarios.Servicos
 
             return usuario;
         }
+
+        public Usuario Editar(int id, UsuarioEditarComando comando)
+        {
+            Usuario usuario = Validar(id);
+
+            if (!string.IsNullOrEmpty(comando.Nome))
+                usuario.SetNome(comando.Nome);
+
+            if (!string.IsNullOrEmpty(comando.Biografia))
+                usuario.SetBiografia(comando.Biografia);
+
+            if (!string.IsNullOrEmpty(comando.Endereco))
+                usuario.SetEndereco(comando.Endereco);
+
+            List<int> idsPreferencias = comando.IdsPreferencias ?? [];
+
+            List<PreferenciasUsuario> preferenciasParaRemover = usuario.Preferencias
+                .Where(p => !idsPreferencias.Contains(p.Preferencia.Id))
+                .ToList();
+
+            foreach (var preferenciaUsuario in preferenciasParaRemover)
+            {
+                usuario.Preferencias.Remove(preferenciaUsuario);
+            }
+
+            foreach (int idPreferencia in idsPreferencias)
+            {
+                if (!usuario.Preferencias.Any(p => p.Preferencia.Id == idPreferencia))
+                {
+                    Preferencia preferencia = preferenciasServico.Validar(idPreferencia);
+
+                    PreferenciasUsuario preferenciaUsuario = new(usuario, preferencia);
+
+                    usuario.Preferencias.Add(preferenciaUsuario);
+                }
+            }
+
+            var lugaresParaRemover = usuario.LugaresFavoritos
+                .Where(lfDb => !comando.LugaresFavoritos.Contains(lfDb.Nome.Trim(), StringComparer.CurrentCultureIgnoreCase))
+                .ToList();
+
+            foreach (var lugarFavorito in lugaresParaRemover)
+            {
+                usuario.LugaresFavoritos.Remove(lugarFavorito);
+            }
+
+            foreach (string nomeLugar in comando.LugaresFavoritos)
+            {
+                if (!usuario.LugaresFavoritos.Any(lf => lf.Nome.Trim().Equals(nomeLugar, StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    LugarFavorito lugarFavorito = new(nomeLugar, usuario);
+
+                    usuario.LugaresFavoritos.Add(lugarFavorito);
+                }
+            }
+
+            usuariosRepositorio.Editar(usuario);
+
+            return usuario;
+        }
     }
 }

@@ -2,6 +2,7 @@
 using SociAll.Dominio.Eventos.Entidades;
 using SociAll.Dominio.Eventos.Repositorios;
 using SociAll.Dominio.Eventos.Repositorios.Filtros;
+using SociAll.Dominio.Genericos.Enumeradores;
 using SociAll.Dominio.Util;
 using SociAll.Infra.Genericos;
 
@@ -12,6 +13,8 @@ namespace SociAll.Infra.Eventos.Respositorios
         public PaginacaoConsulta<Evento> ListarEventos(EventosListarFiltro filtro)
         {
             IQueryable<Evento> query = Query();
+
+            query = query.Where(x => x.Status == AtivoInativoEnum.Ativo);
 
             if (!string.IsNullOrEmpty(filtro.NomeEvento))
                 query = query.Where(x => x.Nome.Contains(filtro.NomeEvento));

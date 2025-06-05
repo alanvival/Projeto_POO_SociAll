@@ -47,5 +47,42 @@ namespace SociAll.API.Controllers
 
             return Ok(response);
         }
+
+
+        ///<summary>
+        /// Edita um evento.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("{id:int}")]
+        public ActionResult<EventoResponse> Editar(int id, [FromBody] EditarEventoRequest request)
+        {
+            EventoResponse response = eventosAppServico.Editar(id, request);
+
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// Listar eventos  ativos onde o usuário está inscrito.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("inscritos/{usuarioId:int}")]
+        public ActionResult<List<EventoResponse>> Listar(int usuarioId)
+        {
+            List<EventoResponse> response = eventosAppServico.ListarEventosUsuarioInscrito(usuarioId);
+
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// Deleta um evento.
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("{id:int}")]
+        public ActionResult Deletar(int id)
+        {
+            eventosAppServico.Deletar(id);
+
+            return Ok(id);
+        }
     }
 }
