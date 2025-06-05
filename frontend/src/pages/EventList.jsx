@@ -11,8 +11,6 @@ import {
   Toolbar,
   Paper,
   Fade,
-  useTheme,
-  useMediaQuery
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
@@ -23,6 +21,7 @@ import EventCard from '../components/Events/EventCard';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+// ... (SociAllLogo, EventListRoot, FloatingShape, StyledAppBar, NavButton, SearchField, StyledContainer, TitleCard, StyledFooter - permanecem os mesmos)
 // Logo original com estilo atualizado
 const SociAllLogo = () => (
   <svg viewBox="0 0 200 200" width="60" height="60">
@@ -183,34 +182,41 @@ const StyledFooter = styled(Box)(({ theme }) => ({
   }
 }));
 
+
 const EventList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [eventsData, setEventsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // const theme = useTheme(); // Removido se não usado diretamente aqui
+  const infoUsuario = JSON.parse(localStorage.getItem('infoUsuario'));
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       setError(null);
 
-      const request = {
-        NomeEvento: "",
+      const requestParams = {
+        NomeEvento: searchTerm,
         CategoriaEventoIds: [],
         NomeCriador: "",
-        Data: "",
         Pg: 1,
-        Qt: 10,
+        Qt: 100,
       };
 
       try {
-        // ATENÇÃO: Verifique se a URL da API está correta para seu ambiente
-        const response = await axios.get('http://localhost:5173/api/eventos', request);
-        setEventsData(response.data.registros);
-        console.log('Eventos recebidos:', response.data.registros); // Corrigido para logar os dados recebidos
+        const response = await axios.get('http://localhost:5173/api/eventos', { params: requestParams });
+        
+        const eventosFormatados = response.data.registros.map(evento => ({
+          ...evento
+        }));
+
+        const eventosFiltrados = eventosFormatados.filter(
+          evento => evento.usuario.id !== infoUsuario.id
+        );
+      
+        setEventsData(eventosFiltrados);
       } catch (err) {
         console.error('Erro ao buscar eventos:', err);
         setError(err);
@@ -219,20 +225,63 @@ const EventList = () => {
       }
     };
 
-    fetchEvents();
-    // Removido searchTerm da dependência para evitar chamadas repetidas na digitação
-    // Se a busca for em tempo real, adicione novamente: }, [searchTerm]);
-  }, []);
+    if (infoUsuario && infoUsuario.id) {
+        fetchEvents();
+    } else {
+        console.warn('Informações do usuário não encontradas no localStorage.');
+    }
+  }, [searchTerm, infoUsuario?.id]); // Adiciona infoUsuario.id para refazer a busca se o usuário mudar
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
     // Se precisar buscar ao digitar, chame a função fetchEvents aqui ou ajuste o useEffect
   };
 
-  const handleConfirmPresence = (eventId) => {
-    console.log(`Presença confirmada no evento ${eventId}`);
-    // Implementar lógica de confirmação
-  };
+  const handleConfirmPresence = async (eventId) => {
+    if (!infoUsuario || !infoUsuario.id) {
+      console.error('Usuário não logado. Impossível confirmar presença.');
+      
+      setError({ message: 'Você precisa estar logado para confirmar presença.' });
+      return;
+    }
+
+    const request = {
+      EventoId: eventId,
+      UsuarioId: infoUsuario.id
+    };
+
+    try {
+      const response = await axios.post('http://localhost:5173/api/inscricoes', request);
+      console.log('Inscrição realizada com sucesso:', response.data);
+
+      setEventsData(prevEventsData =>
+        prevEventsData.map(event => {
+          if (event.id === eventId) {
+            return {
+              ...event,
+              quantidadeConfirmados: (event.quantidadeConfirmados || 0) + 1,
+              usuarioConfirmou: true
+            };
+          }
+          return event;
+        })
+      );
+      setError(null);
+
+    } catch (err) {
+      console.error('Erro ao confirmar presença:', err);
+      if (err.response && err.response.data && err.response.data.message === 'Usuário já inscrito neste evento') {
+        setError({ message: 'Você já está inscrito neste evento.' });
+        setEventsData(prevEventsData =>
+            prevEventsData.map(event => 
+                event.id === eventId ? { ...event, usuarioConfirmou: true } : event
+            )
+        );
+      } else {
+        setError(err);
+      }
+    }
+  };Nn
 
   const handleAddEvent = (organizerId) => {
     console.log(`Adicionando evento do organizador ${organizerId}`);
@@ -251,7 +300,21 @@ const EventList = () => {
   const handleNavigateToProfile = () => {
     navigate('/perfil');
   };
-  // ********************************************
+
+  if (!infoUsuario) {
+    return (
+      <EventListRoot>
+
+        <StyledAppBar>
+        </StyledAppBar>
+        <StyledContainer maxWidth="lg">
+            <Typography variant="h6" sx={{ textAlign: 'center', mt: 5 }}>
+                Por favor, faça login para ver os eventos.
+            </Typography>
+        </StyledContainer>
+      </EventListRoot>
+    );
+  }
 
   return (
     <EventListRoot>
@@ -295,7 +358,7 @@ const EventList = () => {
               }}
               onClick={handleNavigateToProfile} // <--- ONCLICK ADICIONADO AQUI
             >
-              Meu Perfil
+              {infoUsuario.nome || 'Meu Perfil'}
             </Button>
 
             <NavButton
@@ -361,9 +424,9 @@ const EventList = () => {
           )}
 
           {error && (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Box sx={{ textAlign: 'center', py: 4, backgroundColor: alpha('#ffd9d9', 0.5), borderRadius: 2, border: '1px solid #d32f2f', marginX: 'auto', maxWidth: '600px' }}>
               <Typography variant="h6" sx={{ color: '#d32f2f' }}>
-                Falha ao carregar eventos.
+                {error.message || 'Falha ao processar a solicitação.'}
               </Typography>
             </Box>
           )}
@@ -393,6 +456,7 @@ const EventList = () => {
       </Fade>
 
       {/* Footer */}
+
       <StyledFooter>
         <SociAllLogo />
         <Typography

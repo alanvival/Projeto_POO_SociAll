@@ -10,9 +10,11 @@ import {
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; // Ícone para o botão confirmado
 
 const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
     function formatDateTime(isoString) {
+        if (!isoString) return 'Data não informada'; // Tratamento para data inválida ou ausente
         const date = new Date(isoString);
       
         const datePart = new Intl.DateTimeFormat('pt-BR', {
@@ -27,77 +29,100 @@ const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
         return `${datePart} às ${timePart}`;
     }
 
+    const isCurrentUserConfirmed = event.usuarioConfirmou || false;
+    const eventDate = event.data || event.dataHoraInicio;
+    const confirmedCount = event.quantidadeConfirmados !== undefined ? event.quantidadeConfirmados : event.quantidadeInscritos;
+
     return (
         <Card sx={{
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            borderRadius: 2
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)', // Sombra sutil
+            borderRadius: 3, // Bordas mais arredondadas
+            transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+            '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 6px 16px rgba(0,0,0,0.12)',
+            }
         }}>
-            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #eee' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
-                        alt={event.usuario?.nome || 'Organizador Desconhecido'}
-                        src={event.usuario?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.usuario?.nome || 'Desconhecido')}&background=random`}
-                        sx={{ width: 30, height: 30 }}
+                        alt={event.usuario?.nome || 'Organizador'}
+                        src={event.usuario?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.usuario?.nome || 'D')}&background=random&color=fff`}
+                        sx={{ width: 32, height: 32 }}
                     />
-                    <Typography variant="subtitle2" sx={{ ml: 1 }}>
-                        {event.usuario?.nome || 'Organizador Desconhecido'}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                        Organizador
-                    </Typography>
+                    <Box sx={{ ml: 1.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', lineHeight: 1.2 }}>
+                            {event.usuario?.nome || 'Organizador Desconhecido'}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+                            Organizador
+                        </Typography>
+                    </Box>
                 </Box>
-                <Button
-                    variant="text"
-                    size="small"
-                    sx={{
-                        color: '#253b6e',
-                        textTransform: 'none',
-                        fontWeight: 'medium'
-                    }}
-                    onClick={() => onAddEvent(event.usuario.id)}
-                >
-                    Adicionar
-                </Button>
+
+                {onAddEvent && typeof onAddEvent === 'function' && (
+                     <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                            color: '#253b6e',
+                            borderColor: '#253b6e',
+                            textTransform: 'none',
+                            fontWeight: 'medium',
+                            borderRadius: 2,
+                            '&:hover': {
+                                backgroundColor: 'rgba(37, 59, 110, 0.04)',
+                                borderColor: '#182794',
+                            }
+                        }}
+                        onClick={() => onAddEvent(event.usuario?.id)}
+                    >
+                        + Seguir Org.
+                    </Button>
+                )}
             </Box>
 
-            <Typography variant="h6" sx={{ px: 2, fontWeight: 'medium' }}>
-                {event.nome}
-            </Typography>
+            {/* Se o evento tiver uma imagem, exiba */}
+            {event.foto && (
+                <CardMedia
+                    component="img"
+                    height="160"
+                    image={event.foto || "https://via.placeholder.com/600x400.png?text=Evento+Sem+Imagem"}
+                    alt={`Imagem do Evento: ${event.nome}`}
+                    sx={{ objectFit: 'cover' }}
+                />
+            )}
 
-            <CardMedia
-                component="img"
-                height="140"
-                image={event.foto || "https://picsum.photos/id/237/200/300"}
-                alt='Imagem do Evento'
-                sx={{ mt: 1 }}
-            />
-
-            <CardContent sx={{ flexGrow: 1, pt: 1 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {event.descricao}
+            <CardContent sx={{ flexGrow: 1, pt: event.foto ? 2 : 1 }}> {/* Ajusta padding se não tiver foto */}
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, color: '#1e2a5a' }}>
+                    {event.nome}
+                </Typography>
+                
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: '40px' /* para evitar pulos de layout */ }}>
+                    {event.descricao?.substring(0, 100)}{event.descricao?.length > 100 ? '...' : ''} {/* Limita descrição */}
                 </Typography>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <LocationOnIcon fontSize="small" color="action" />
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'text.secondary' }}>
+                    <LocationOnIcon fontSize="small" sx={{ color: '#5c6ac4' }} />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                        {event.endereco}
+                        {event.localizacao || event.endereco || 'Local a definir'}
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <CalendarTodayIcon fontSize="small" color="action" />
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'text.secondary' }}>
+                    <CalendarTodayIcon fontSize="small" sx={{ color: '#5c6ac4' }} />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                        {formatDateTime(event.data)}
+                        {formatDateTime(eventDate)}
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <PeopleIcon fontSize="small" color="action" />
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'text.secondary' }}>
+                    <PeopleIcon fontSize="small" sx={{ color: '#5c6ac4' }} />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                        {event.quantidadeInscritos} Pessoas confirmadas
+                        {confirmedCount || 0} Pessoas confirmadas
                     </Typography>
                 </Box>
 
@@ -105,14 +130,28 @@ const EventCard = ({ event, onConfirmPresence, onAddEvent }) => {
                 <Button
                     fullWidth
                     variant="contained"
+                    disabled={isCurrentUserConfirmed}
+                    startIcon={isCurrentUserConfirmed ? <CheckCircleOutlineIcon /> : null}
                     sx={{
-                        bgcolor: '#253b6e',
-                        '&:hover': { bgcolor: '#182794' },
-                        textTransform: 'none'
+                        mt: 'auto',
+                        textTransform: 'none',
+                        fontWeight: 'bold',
+                        borderRadius: 2,
+                        paddingY: 1.2,
+                        bgcolor: isCurrentUserConfirmed ? '#4CAF50' : '#253b6e',
+                        '&:hover': {
+                            bgcolor: isCurrentUserConfirmed ? '#388E3C' : '#182794',
+                        },
+                        // Estilo para o botão desabilitado, se necessário
+                        '&.Mui-disabled': {
+                           bgcolor: isCurrentUserConfirmed ? '#4CAF50' : undefined,
+                           color: isCurrentUserConfirmed ? '#ffffff' : undefined,
+                           opacity: isCurrentUserConfirmed ? 0.7 : 0.5
+                        }
                     }}
-                    onClick={() => onConfirmPresence(event.id)}
+                    onClick={() => !isCurrentUserConfirmed && onConfirmPresence(event.id)}
                 >
-                    Confirmar Presença
+                    {isCurrentUserConfirmed ? 'Presença Confirmada!' : 'Confirmar Presença'}
                 </Button>
             </CardContent>
         </Card>

@@ -176,7 +176,11 @@ const Login = () => {
     
     try {
       const response = await axios.post('http://localhost:5173/api/usuarios/autenticar', request);
+
       console.log('Login realizado com sucesso:', response.data);
+
+      localStorage.setItem('infoUsuario', JSON.stringify(response.data));
+
       navigate('/events');
     } 
     catch (error) {
