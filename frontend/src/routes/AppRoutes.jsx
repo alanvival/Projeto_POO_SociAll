@@ -5,6 +5,7 @@ import Register from '../pages/Register';
 import EventList from '../pages/EventList';
 import MyEvents from '../pages/MyEvents';
 import ConfirmedEvents from '../pages/ConfirmedEvents';
+import Profile from '../pages/Profile';
 
 export default function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ export default function AppRoutes() {
         <Route path="/events" element={<EventList />} />
         <Route path="/meus-eventos" element={<MyEvents />} />
         <Route path="/eventos-confirmados" element={<ConfirmedEvents />} />
+        <Route path="/perfil" element={<Profile />} /> {/* Rota adicionada */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

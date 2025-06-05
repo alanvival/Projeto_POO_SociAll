@@ -35,5 +35,21 @@ namespace SociAll.Aplicacao.Inscricoes.Servicos
                 throw new Exception("Não foi possível se inscrever no evento", ex);
             }
         }
+
+        public void CancelarInscricao(int eventoId, int usuarioId)
+        {
+            try
+            {
+                unitOfWork.BeginTransaction();
+
+                inscricoesServico.CancelarInscricao(eventoId, usuarioId);
+
+                unitOfWork.Commit();
+            }
+            catch
+            {
+                unitOfWork.Rollback();
+            }
+        }
     }
 }

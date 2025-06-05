@@ -13,10 +13,12 @@ namespace SociAll.Infra.Usuarios.Mapeamentos
             Map(u => u.Nome, "NOME");
             Map(u => u.Email, "EMAIL");
             Map(u => u.Senha, "SENHA");
+            Map(u => u.Biografia, "BIOGRAFIA");
             Map(u => u.Endereco, "ENDERECO");
 
-            HasMany(u => u.Hobbies).KeyColumn("USUARIO_ID").Cascade.AllDeleteOrphan();
-            HasMany(u => u.Preferencias).KeyColumn("USUARIO_ID").Cascade.AllDeleteOrphan();
+            HasMany(u => u.Hobbies).KeyColumn("USUARIO_ID").Inverse().Cascade.AllDeleteOrphan();
+            HasMany(u => u.Preferencias).KeyColumn("USUARIO_ID").Inverse().Cascade.AllDeleteOrphan();
+            HasMany(u => u.LugaresFavoritos).KeyColumn("USUARIO_ID").Inverse().Cascade.AllDeleteOrphan();
         }
     }
 }

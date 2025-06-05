@@ -32,11 +32,11 @@ const SociAllLogo = () => (
       </linearGradient>
     </defs>
     <g>
-      <circle cx="100" cy="70" r="50" fill="url(#logoGradient)"/>
-      <circle cx="80" cy="60" r="7" fill="#ffffff"/>
-      <circle cx="120" cy="60" r="7" fill="#ffffff"/>
-      <path d="M130,85 C130,95 115,110 100,110 C85,110 70,95 70,85" fill="#ffffff"/>
-      <path d="M100,120 L150,170 C160,180 170,160 155,145 L130,120 C130,120 115,100 100,120Z" fill="url(#logoGradient)"/>
+      <circle cx="100" cy="70" r="50" fill="url(#logoGradient)" />
+      <circle cx="80" cy="60" r="7" fill="#ffffff" />
+      <circle cx="120" cy="60" r="7" fill="#ffffff" />
+      <path d="M130,85 C130,95 115,110 100,110 C85,110 70,95 70,85" fill="#ffffff" />
+      <path d="M100,120 L150,170 C160,180 170,160 155,145 L130,120 C130,120 115,100 100,120Z" fill="url(#logoGradient)" />
     </g>
   </svg>
 );
@@ -234,6 +234,7 @@ const EventList = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+    // Se precisar buscar ao digitar, chame a função fetchEvents aqui ou ajuste o useEffect
   };
 
   const handleConfirmPresence = async (eventId) => {
@@ -284,6 +285,7 @@ const EventList = () => {
 
   const handleAddEvent = (organizerId) => {
     console.log(`Adicionando evento do organizador ${organizerId}`);
+    // Implementar lógica de adicionar evento
   };
 
   const handleNavigateToMyEvents = () => {
@@ -292,6 +294,11 @@ const EventList = () => {
 
   const handleNavigateToConfirmed = () => {
     navigate('/eventos-confirmados');
+  };
+
+  // ***** FUNÇÃO PARA NAVEGAR PARA O PERFIL *****
+  const handleNavigateToProfile = () => {
+    navigate('/perfil');
   };
 
   if (!infoUsuario) {
@@ -313,13 +320,13 @@ const EventList = () => {
     <EventListRoot>
       <FloatingShape position="top" />
       <FloatingShape />
-      
+
       <StyledAppBar>
         <Toolbar>
           <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
             <SociAllLogo />
           </Box>
-          
+
           <SearchField
             placeholder="Pesquisar eventos..."
             variant="outlined"
@@ -335,12 +342,12 @@ const EventList = () => {
             value={searchTerm}
             onChange={handleSearchChange}
           />
-          
+
           <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button 
+            <Button
               color="inherit"
               startIcon={<PersonIcon />}
-              sx={{ 
+              sx={{
                 textTransform: 'none',
                 borderRadius: 10,
                 color: '#ffffff',
@@ -349,20 +356,21 @@ const EventList = () => {
                   backgroundColor: alpha('#ffffff', 0.1)
                 }
               }}
+              onClick={handleNavigateToProfile} // <--- ONCLICK ADICIONADO AQUI
             >
               {infoUsuario.nome || 'Meu Perfil'}
             </Button>
-            
-            <NavButton 
-              variant="contained" 
+
+            <NavButton
+              variant="contained"
               startIcon={<CalendarMonthIcon />}
               onClick={handleNavigateToMyEvents}
             >
               Meus Eventos
             </NavButton>
 
-            <NavButton 
-              variant="contained" 
+            <NavButton
+              variant="contained"
               startIcon={<CheckCircleIcon />}
               onClick={handleNavigateToConfirmed}
             >
@@ -375,9 +383,9 @@ const EventList = () => {
       <Fade in={true} timeout={800}>
         <StyledContainer maxWidth="lg">
           <TitleCard elevation={0}>
-            <Typography 
-              variant="h5" 
-              sx={{ 
+            <Typography
+              variant="h5"
+              sx={{
                 fontWeight: 700,
                 background: 'linear-gradient(90deg, #253b6e, #324f94)',
                 WebkitBackgroundClip: 'text',
@@ -388,19 +396,19 @@ const EventList = () => {
                 gap: 1
               }}
             >
-              <CalendarMonthIcon sx={{ 
+              <CalendarMonthIcon sx={{
                 color: '#253b6e',
                 fontSize: '1.5rem',
-                verticalAlign: 'middle' 
+                verticalAlign: 'middle'
               }} />
               Descubra Eventos
             </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                mt: 1, 
+            <Typography
+              variant="body1"
+              sx={{
+                mt: 1,
                 color: alpha('#324f94', 0.8),
-                maxWidth: '80%' 
+                maxWidth: '80%'
               }}
             >
               Explore e encontre os melhores eventos para participar
@@ -414,7 +422,7 @@ const EventList = () => {
               </Typography>
             </Box>
           )}
-          
+
           {error && (
             <Box sx={{ textAlign: 'center', py: 4, backgroundColor: alpha('#ffd9d9', 0.5), borderRadius: 2, border: '1px solid #d32f2f', marginX: 'auto', maxWidth: '600px' }}>
               <Typography variant="h6" sx={{ color: '#d32f2f' }}>
@@ -423,31 +431,37 @@ const EventList = () => {
             </Box>
           )}
 
-          <Grid container spacing={3} sx={{ mt: error ? 2 : 0 }}> {/* Adiciona margem se houver erro */}
-            {!loading && eventsData.length === 0 && !error && (
-                 <Box sx={{ textAlign: 'center', py: 8, width: '100%' }}>
-                    <Typography variant="h6" sx={{ color: alpha('#324f94', 0.8) }}>
-                        Nenhum evento encontrado com os filtros atuais.
-                    </Typography>
-                </Box>
+          <Grid container spacing={3}>
+            {!loading && eventsData && eventsData.length > 0 ? (
+              eventsData.map((event) => (
+                <Grid item xs={12} sm={6} md={4} key={event.id}>
+                  <EventCard
+                    event={event}
+                    onConfirmPresence={handleConfirmPresence}
+                    onAddEvent={handleAddEvent}
+                  />
+                </Grid>
+              ))
+            ) : (
+              !loading && (
+                <Grid item xs={12}>
+                  <Typography sx={{ textAlign: 'center', color: alpha('#324f94', 0.8), py: 8 }}>
+                    Nenhum evento encontrado.
+                  </Typography>
+                </Grid>
+              )
             )}
-            {!loading && eventsData.map((event) => (
-              <Grid item xs={12} sm={6} md={4} key={event.id}>
-                <EventCard 
-                  event={event} 
-                  onConfirmPresence={handleConfirmPresence}
-                />
-              </Grid>
-            ))}
           </Grid>
         </StyledContainer>
       </Fade>
-      
+
+      {/* Footer */}
+
       <StyledFooter>
         <SociAllLogo />
-        <Typography 
-          variant="body2" 
-          sx={{ 
+        <Typography
+          variant="body2"
+          sx={{
             mt: 1,
             color: alpha('#324f94', 0.7),
             fontWeight: 500

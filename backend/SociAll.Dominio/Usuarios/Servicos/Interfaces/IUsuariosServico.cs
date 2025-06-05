@@ -10,5 +10,7 @@ namespace SociAll.Dominio.Usuarios.Servicos.Interfaces
         Usuario Inserir(UsuarioInserirComando comando);
 
         Usuario Autenticar(string email, string senha);
+
+        Usuario Editar(int id, UsuarioEditarComando comando);
     }
 }

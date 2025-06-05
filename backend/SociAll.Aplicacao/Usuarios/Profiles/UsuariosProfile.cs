@@ -20,6 +20,8 @@ namespace SociAll.Aplicacao.Usuarios.Profiles
             CreateMap<Hobby, HobbyResponse>();
             CreateMap<PreferenciasUsuario, PreferenciaUsuarioResponse>();
             CreateMap<Preferencia, PreferenciaResponse>();
+            CreateMap<LugarFavorito, LugarFavoritoResponse>();
+            CreateMap<UsuarioEditarRequest, UsuarioEditarComando>();
         }
     }
 }

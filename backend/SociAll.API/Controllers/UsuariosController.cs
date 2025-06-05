@@ -34,5 +34,17 @@ namespace SociAll.API.Controllers
 
             return Ok(response);
         }
+
+        ///<summary>
+        ///Editar um usuário.
+        ///</summary>
+        ///<returns></returns>
+        [HttpPut("{id:int}")]
+        public ActionResult<UsuarioResponse> Editar(int id, [FromBody] UsuarioEditarRequest request)
+        {
+            UsuarioResponse response = usuariosAppServico.Editar(id, request);
+
+            return Ok(response);
+        }
     }
 }

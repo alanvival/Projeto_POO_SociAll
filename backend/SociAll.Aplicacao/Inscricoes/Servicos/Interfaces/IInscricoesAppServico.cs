@@ -6,5 +6,6 @@ namespace SociAll.Aplicacao.Inscricoes.Servicos.Interfaces
     public interface IInscricoesAppServico
     {
         InscricaoResponse Inscrever(InscricaoRequest request);
+        void CancelarInscricao(int eventoId, int usuarioId);
     }
 }

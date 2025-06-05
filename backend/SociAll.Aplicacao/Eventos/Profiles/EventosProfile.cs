@@ -19,6 +19,8 @@ namespace SociAll.Aplicacao.Eventos.Profiles
             CreateMap<PreferenciaEvento, PreferenciaEventoResponse>();
 
             CreateMap<ListarEventoRequest, EventosListarFiltro>();
+
+            CreateMap<EditarEventoRequest, EditarEventoComando>();
         }
     }
 }

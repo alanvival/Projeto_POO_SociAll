@@ -22,5 +22,13 @@ namespace SociAll.API.Controllers
 
             return Ok(response);
         }
+
+        [HttpDelete]
+        public ActionResult CancelarInscricao(int eventoId, int usuarioId)
+        {
+            inscricoesAppServico.CancelarInscricao(eventoId, usuarioId);
+
+            return NoContent();
+        }
     }
 }

@@ -157,6 +157,10 @@ const Login = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
 
+  const handleNavigateHome = () => {
+    navigate('/events');
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     
@@ -216,10 +220,14 @@ const Login = () => {
                 bottom: -20,
                 width: '80%',
                 height: 1,
-                background: 'radial-gradient(circle, rgba(37, 59, 110, 0.3) 0%, rgba(255, 255, 255, 0) 70%)',
               }
             }}>
-              <SociAllLogo />
+              <Box 
+                sx={{ cursor: 'pointer', mb: 1 }} 
+                onClick={handleNavigateHome}
+              >
+                <SociAllLogo />
+              </Box>
               <Typography 
                 component="h1" 
                 variant="h4" 
@@ -229,7 +237,8 @@ const Login = () => {
                   background: 'linear-gradient(90deg, #253b6e, #324f94)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 Bem-vindo de volta
@@ -355,9 +364,6 @@ const Login = () => {
                       height: 1,
                       backgroundColor: '#182794',
                       transition: 'width 0.3s ease',
-                    },
-                    '&:hover::after': {
-                      width: '100%',
                     }
                   }}
                 >
